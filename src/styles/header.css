@@ -1,0 +1,29 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.Header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+nav ul {
+    display: flex;
+    gap: 25px;
+    list-style: none;
+    padding-left: 0;
+    margin-left: 0;
+}
+
+nav ul li {
+    cursor: pointer;
+    transition: color 0.3s ease;
+    background-color: white;
+}
+
+nav ul li:hover {
+    color: #4e427a;
+}

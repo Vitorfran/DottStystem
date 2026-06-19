@@ -1,0 +1,31 @@
+:root{
+    --primary-color: #4e427a;
+    --secondary-color: #f0f0f0;
+    --text-color: #333;
+
+    background-color: var(--secondary-color);
+}
+
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+}
+
+
+
+.Home{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    margin-top: -500px;
+
+}
+
