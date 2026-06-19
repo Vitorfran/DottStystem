@@ -55,6 +55,10 @@ body {
     margin-bottom: 30px;
 }
 
+
+/* Botoes  */
+
+
 .buttons {
     display: flex;
     gap: 20px;
@@ -89,6 +93,8 @@ body {
 .btn-secondary:hover {
     background-color: rgba(76, 175, 80, 0.1);
 }
+
+/* Imagem  */
 .hero-image {
     flex: 1;
     display: flex;
