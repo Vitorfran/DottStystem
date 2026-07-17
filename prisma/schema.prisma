@@ -33,6 +33,8 @@ model Project{
   mensagem  String   @db.Text
   criadoEm  DateTime @default(now())
   figma_link String?   @db.Text
+  trello_link String?  @db.Text
+  fotos     String?    @db.LongText
   designAprovado Boolean @default(false)
   contrato_link String? @db.Text
   contrato_assinado Boolean @default(false)
@@ -45,6 +47,9 @@ model Project{
 
   // Relacionamento reverso virtual com os pagamentos
   payments     Payment[]
+
+  @@index([clienteId])
+  @@index([responsavelId])
 }
 
 model Payment {
@@ -62,6 +67,8 @@ model Payment {
   // Relacionamento com Project: A qual projeto pertence este pagamento?
   projectId         Int
   project           Project   @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
 }
 
 // Aqui criamos a nossa tabela de Contato!
@@ -70,5 +77,6 @@ model Contato {
   nome      String
   email     String
   mensagem  String   @db.Text
+  fotos     String?  @db.LongText
   criadoEm  DateTime @default(now())
 }

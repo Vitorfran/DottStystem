@@ -11,7 +11,8 @@ import jwt from 'jsonwebtoken';
 const prisma = new PrismaClient();
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 
 
@@ -61,7 +62,7 @@ function authMiddleware(req, res, next) {
 app.post("/api/contato", async (req,res) => {
     // pegar dados com o fecth do Front ( papel do cliente )
 
-    const { nome, email, mensagem } = req.body;
+    const { nome, email, mensagem, fotos } = req.body;
 
 
     if(!nome || !email || !mensagem) {
@@ -77,7 +78,8 @@ app.post("/api/contato", async (req,res) => {
      data: {
         nome: nome,
         email: email,
-        mensagem: mensagem
+        mensagem: mensagem,
+        fotos: fotos || null
     }
 });
 
@@ -281,14 +283,28 @@ app.post("/api/auth/login", async (req, res) => {
 app.get("/api/projetos", authMiddleware, async (req,res) => {
 
     try {
-        const clienteId = req.usuarioId; 
+        const { projectId } = req.query;
+        let queryCondition = { clienteId: req.usuarioId };
 
-
+        // Se for admin ou funcionário e passar o projectId por query param, permite o bypass
+        if (req.usuarioRole === 'admin' || req.usuarioRole === 'funcionario') {
+            if (projectId) {
+                queryCondition = { id: parseInt(projectId) };
+            } else {
+                // Se for admin e não passar projectId, busca o primeiro projeto do sistema como fallback para testes
+                const primeiroProjeto = await prisma.project.findFirst({
+                    include: {
+                        payments: true
+                    }
+                });
+                if (primeiroProjeto) {
+                    return res.status(200).json({ projeto: primeiroProjeto });
+                }
+            }
+        }
 
         const projeto = await prisma.project.findFirst({
-            where: {
-                clienteId: clienteId
-            },
+            where: queryCondition,
             include: {
                 payments: true // Inclui os pagamentos do projeto
             }        
@@ -317,34 +333,45 @@ app.post("/api/contato/refinar", async (req, res) => {
         return res.status(400).json({ message: "A mensagem é obrigatória." });
     }
     try {
-        const prompt = `Você é um consultor especializado da empresa Dott System. Um cliente te enviou uma ideia de projeto pelo celular, falando de forma natural e espontânea. Sua missão é transformar essa fala em uma proposta organizada, clara e profissional.
+        const prompt = `Formate e estruture o texto abaixo em um escopo limpo e legível de projeto de software.
+ATENÇÃO: Não use ou chame nenhuma ferramenta externa. Escreva tudo em Português do Brasil com linguagem simples, sem jargões técnicos.
 
-REGRAS IMPORTANTES:
-- Escreva de forma que qualquer pessoa entenda, sem usar termos técnicos como "backend", "frontend", "API", "deploy", "stack" ou "framework". Prefira dizer "a parte que o usuário vê na tela", "a parte que guarda os dados", "o sistema de pagamento" etc.
-- Seja detalhado mas objetivo.
-- Use emojis para tornar a leitura mais agradável.
-- Escreva em Português do Brasil.
+Ideia original do cliente: "${mensagem}"
 
-ESTRUTURA OBRIGATÓRIA:
+Escreva seguindo exatamente esta estrutura:
 
 ## 📌 Nome do Projeto
-(Sugira um nome criativo e marcante)
+(Sugira um nome criativo)
 
 ## 🎯 O que será criado
-(Descreva em linguagem simples o que o cliente quer ter no final. Imagine explicando para alguém da família.)
+(Explicação simples e objetiva do projeto)
 
-## ✅ O que o sistema vai fazer
-(Liste as principais funcionalidades como se estivesse descrevendo para o cliente em uma reunião)
+## ✅ Principais Funcionalidades
+(Lista com 3 a 5 pontos-chave do sistema)
 
-## 👥 Quem vai usar
-(Descreva o perfil dos usuários finais do sistema)
+## 👥 Usuários
+(Quem vai utilizar)
 
-## 📱 Como vai funcionar
-(Descreva se será um site, aplicativo de celular, painel de controle para o dono da empresa, etc.)
-
-Fala do cliente: "${mensagem}"`;
+## 📱 Formato
+(Se é site, aplicativo móvel, sistema de computador, etc.)`;
         
-        const escopoRefinado = await enviarMensagemParaLangflow(prompt);
+        let escopoRefinado = await enviarMensagemParaLangflow(prompt);
+        
+        // Remove blocos JSON e preâmbulos de ferramentas caso a IA os retorne mesmo assim
+        if (escopoRefinado) {
+            escopoRefinado = escopoRefinado.replace(/\{[\s\S]*?\}/g, '');
+            escopoRefinado = escopoRefinado.replace(/Aqui está a função[\s\S]*?:/gi, '');
+            escopoRefinado = escopoRefinado.replace(/Vou precisar buscar[\s\S]*?:/gi, '');
+            escopoRefinado = escopoRefinado.replace(/Vou precisar buscar[\s\S]*?\./gi, '');
+            escopoRefinado = escopoRefinado.trim();
+        }
+
+        // Se a IA ainda assim retornar vazia ou contiver lixo de função, usamos o fallback dinâmico baseado na mensagem do cliente
+        if (!escopoRefinado || escopoRefinado.includes('search_documents') || escopoRefinado.length < 50) {
+            const nomeSugerido = mensagem.length < 25 ? mensagem : "Projeto Customizado";
+            escopoRefinado = `## 📌 Nome do Projeto\n${nomeSugerido}\n\n## 🎯 O que será criado\nUm sistema sob medida projetado a partir da especificação do cliente: "${mensagem}".\n\n## ✅ Principais Funcionalidades\n- Atendimento aos requisitos detalhados pelo cliente\n- Painel de administração seguro e fácil de usar\n- Integrações necessárias para o funcionamento do fluxo\n\n## 👥 Usuários\nAdministradores e usuários finais do sistema.\n\n## 📱 Formato\nPlataforma digital responsiva (Web/Mobile).`;
+        }
+
         res.status(200).json({ escopo: escopoRefinado });
     } catch (error) {
         console.error("Erro ao refinar briefing:", error);
@@ -352,12 +379,22 @@ Fala do cliente: "${mensagem}"`;
     }
 });
 
+function gerarPixQrCode(valor) {
+    const valorFormatado = parseFloat(valor).toFixed(2);
+    const len = String(valorFormatado).length;
+    const lenStr = len.toString().padStart(2, '0');
+    return `00020126580014BR.GOV.BCB.PIX0114contato@dott.com52040000530398654${lenStr}${valorFormatado}5802BR5911Dott System6006Itajai62070503***6304CA42`;
+}
+
 // Rota Administrativa para aprovar contatos/briefing e criar o Onboarding do Cliente
 app.post("/api/admin/aprovar-contato/:id", async (req, res) => {
     const contatoId = parseInt(req.params.id);
     if (isNaN(contatoId)) {
         return res.status(400).json({ message: "ID do contato inválido." });
     }
+    
+    const { nome, valorTotal, valorEntrada, valorFinal, trelloLink, contratoLink } = req.body;
+
     try {
         // 1. Busca o contato no banco
         const contato = await prisma.contato.findUnique({
@@ -387,44 +424,108 @@ app.post("/api/admin/aprovar-contato/:id", async (req, res) => {
         }
 
         // 3. Cria o projeto associado a esse cliente
+        const nomeFinalProjeto = nome || `Projeto ${contato.nome}`;
+        const contratoLinkFinal = contratoLink || "https://zapsign.com.br/sign/dott-system-contrato-modelo";
+        
         const projeto = await prisma.project.create({
             data: {
-                nome: `Projeto ${contato.nome}`,
+                nome: nomeFinalProjeto,
                 mensagem: contato.mensagem,
                 etapa_atual: "BRIEFING",
-                contrato_link: "https://zapsign.com.br/sign/dott-system-contrato-modelo", // link estático de simulação
+                contrato_link: contratoLinkFinal,
+                trello_link: trelloLink || null,
+                fotos: contato.fotos || null, // Copia as fotos anexadas no contato
                 contrato_assinado: false,
                 clienteId: cliente.id
             }
         });
 
-        // 4. Cria a primeira fatura (50% de entrada)
+        // 4. Cria as faturas dinamicamente
+        const vEntrada = parseFloat(valorEntrada) || 2500.00;
+        const vTotal = parseFloat(valorTotal) || 5000.00;
+        const vFinal = valorFinal !== undefined ? parseFloat(valorFinal) : (vTotal - vEntrada);
+
+        // Fatura 1: Entrada
         await prisma.payment.create({
             data: {
-                value: 2500.00, // R$ 2.500,00 de entrada simulada
+                value: vEntrada,
                 status: "PENDING",
                 method: "PIX",
                 projectId: projeto.id,
-                pixQrcode: "00020126580014BR.GOV.BCB.PIX0114contato@dott.com52040000530398654062500.005802BR5911Dott System6006Itajai62070503***6304CA42"
+                pixQrcode: gerarPixQrCode(vEntrada)
             }
         });
 
-        // 5. Envia o e-mail de acesso para o cliente
+        // Fatura 2: Parcela Final (se houver valor restante)
+        if (vFinal > 0) {
+            await prisma.payment.create({
+                data: {
+                    value: vFinal,
+                    status: "PENDING",
+                    method: "BOLETO", // ou CARD/PIX
+                    projectId: projeto.id
+                }
+            });
+        }
+
+        // 5. Envia o e-mail de acesso para o cliente com layout HTML elegante
         console.log("Enviando e-mail de onboarding...");
         await transporter.sendMail({
             from: `"Dott System" <${process.env.EMAIL_USER}>`,
             to: contato.email,
-            subject: "Seu projeto na Dott System foi pré-aprovado!",
+            subject: `Seu projeto na Dott System foi pré-aprovado: ${nomeFinalProjeto}! 🚀`,
             html: `
-                <h2>Parabéns, seu projeto na Dott System foi pré-aprovado!</h2>
-                <p>Nossa equipe revisou sua solicitação e já montamos sua proposta.</p>
-                <p>Acesse seu painel do cliente para assinar o contrato e liberar o início do projeto:</p>
-                <p><strong>Link de Acesso:</strong> <a href="http://localhost:5173/login">Painel do Cliente</a></p>
-                <p><strong>Seu e-mail:</strong> ${contato.email}</p>
-                <p><strong>Sua senha temporária:</strong> ${senhaTemporaria}</p>
-                <br/>
-                <p>Atenciosamente,<br/>Equipe Dott System</p>
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #080c14; padding: 40px 20px; color: #f1f5f9; text-align: left; margin: 0; line-height: 1.6;">
+                    <div style="max-width: 580px; margin: 0 auto; background: linear-gradient(145deg, #0f172a, #0b0f19); border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+                        <!-- Header Banner with Gradient -->
+                        <div style="background: linear-gradient(to right, #4f46e5, #7c3aed); padding: 32px 40px; text-align: center;">
+                            <div style="font-size: 28px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; margin-bottom: 6px;">Dott<span style="color: #a78bfa;">.</span>System</div>
+                            <div style="font-size: 13px; color: #c084fc; text-transform: uppercase; font-weight: 700; letter-spacing: 2px;">Soluções Digitais Premium</div>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div style="padding: 40px 40px 30px 40px;">
+                            <h2 style="font-size: 22px; font-weight: 800; color: #ffffff; margin-top: 0; margin-bottom: 12px; letter-spacing: -0.5px;">Parabéns! Seu projeto foi aprovado 🚀</h2>
+                            <p style="color: #94a3b8; font-size: 15px; margin-bottom: 24px;">Olá, <strong>${contato.nome}</strong>! Nossa equipe analisou suas especificações e a sua proposta foi montada e ativada no sistema.</p>
+                            
+                            <!-- Proposta / Detalhes do Projeto -->
+                            <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                                <div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: bold; letter-spacing: 1px; margin-bottom: 12px;">Detalhes do Projeto</div>
+                                <div style="margin-bottom: 8px; font-size: 14px;"><strong style="color: #94a3b8;">Projeto:</strong> <span style="color: #f1f5f9; font-weight: 600;">${nomeFinalProjeto}</span></div>
+                                <div style="margin-bottom: 8px; font-size: 14px;"><strong style="color: #94a3b8;">Investimento Total:</strong> <span style="color: #818cf8; font-weight: bold;">R$ ${vTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>
+                                <div style="font-size: 14px;"><strong style="color: #94a3b8;">Condição:</strong> <span style="color: #f1f5f9;">Entrada de R$ ${vEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} + R$ ${vFinal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} na entrega.</span></div>
+                            </div>
+
+                            <p style="color: #94a3b8; font-size: 14px; margin-bottom: 16px;">Para iniciar, acesse seu painel do cliente para assinar o contrato digital e realizar o pagamento da entrada:</p>
+                            
+                            <!-- Acesso Box -->
+                            <div style="background: rgba(79, 70, 229, 0.1); border: 1px dashed rgba(79, 70, 229, 0.4); border-radius: 12px; padding: 20px; margin-bottom: 30px; text-align: center;">
+                                <div style="font-size: 13px; color: #a5b4fc; font-weight: 600; margin-bottom: 10px;">Suas Credenciais de Acesso:</div>
+                                <div style="font-size: 14px; color: #94a3b8; margin-bottom: 6px;">E-mail: <strong style="color: #ffffff;">${contato.email}</strong></div>
+                                <div style="font-size: 14px; color: #94a3b8;">Senha Temporária: <strong style="color: #ffffff;">${senhaTemporaria}</strong></div>
+                            </div>
+
+                            <!-- Button CTA -->
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <a href="http://localhost:5173/login" style="background: linear-gradient(to right, #4f46e5, #7c3aed); color: #ffffff; text-decoration: none; padding: 14px 32px; font-weight: 700; font-size: 14px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4); transition: transform 0.2s;">Acessar Painel do Cliente</a>
+                            </div>
+                            
+                            <p style="color: #64748b; font-size: 12px; text-align: center; margin-top: 20px;">Por motivos de segurança, altere sua senha após o primeiro acesso.</p>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div style="background: rgba(0,0,0,0.2); padding: 24px; border-top: 1px solid rgba(255,255,255,0.04); text-align: center; font-size: 12px; color: #475569;">
+                            Este é um e-mail automático. Dúvidas? Fale com nosso suporte pelo WhatsApp: (47) 99999-0000<br/>
+                            © 2026 Dott System. Todos os direitos reservados.
+                        </div>
+                    </div>
+                </div>
             `
+        });
+
+        // 6. Deleta o contato da tabela para que suma da fila de briefings pendentes do admin
+        await prisma.contato.delete({
+            where: { id: contatoId }
         });
 
         res.status(200).json({ message: "Contato aprovado, usuário e projeto criados com sucesso!" });
@@ -606,11 +707,11 @@ app.post("/api/admin/projetos/:id/assumir", authMiddleware, adminMiddleware, asy
     }
 });
 
-// PUT /api/admin/projetos/:id - Atualiza link do Figma, etapa e prazo do projeto
+// PUT /api/admin/projetos/:id - Atualiza link do Figma, Trello, Contrato, etapa e prazo do projeto
 app.put("/api/admin/projetos/:id", authMiddleware, adminMiddleware, async (req, res) => {
     const projetoId = parseInt(req.params.id);
     const funcionarioId = req.usuarioId;
-    const { figma_link, etapa_atual, dataEntrega } = req.body;
+    const { figma_link, trello_link, contrato_link, etapa_atual, dataEntrega } = req.body;
 
     try {
         // Somente o responsável ou um admin podem editar o projeto
@@ -624,6 +725,8 @@ app.put("/api/admin/projetos/:id", authMiddleware, adminMiddleware, async (req, 
 
         const dadosAtualizados = {};
         if (figma_link !== undefined) dadosAtualizados.figma_link = figma_link;
+        if (trello_link !== undefined) dadosAtualizados.trello_link = trello_link;
+        if (contrato_link !== undefined) dadosAtualizados.contrato_link = contrato_link;
         if (etapa_atual !== undefined) dadosAtualizados.etapa_atual = etapa_atual;
         if (dataEntrega !== undefined) dadosAtualizados.dataEntrega = dataEntrega ? new Date(dataEntrega) : null;
 
