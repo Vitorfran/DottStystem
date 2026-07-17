@@ -23,3 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 *.env
+
+/src/generated/prisma
+
+# Ambiente virtual Python
+venv/
+
+# Banco de dados local do Chroma DB
+meubanco/
+

@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Aqui dizemos que vamos usar o MySQL
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User{
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String @unique
+  senha     String
+  role      String @default("cliente")
+  criadoEm  DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+
+  projects Project[]
+}
+
+model Project{
+  id        Int      @id @default(autoincrement())
+  etapa_atual String @default("BRIEFING")
+  nome      String
+  mensagem  String   @db.Text
+  criadoEm  DateTime @default(now())
+  figma_link String
+  designAprovado Boolean @default(false)
+  dataEntrega DateTime
+  clienteId    Int
+  cliente      User      @relation(fields: [clienteId], references: [id])
+  
+  // Relacionamento reverso virtual com os pagamentos
+  payments     Payment[]
+}
+
+model Payment {
+  id                Int       @id @default(autoincrement())
+  value             Decimal   @db.Decimal(10, 2) // Precisão de centavos para moeda
+  status            String    @default("PENDING") // PENDING, PAID, CANCELED
+  method            String    // PIX, CARD, BOLETO
+  gatewayId         String?   @unique // Indexado para buscas rápidas de Webhooks
+  pixQrcode         String?   @db.Text
+  urlNotaFiscal     String?   @db.Text
+  
+  confirmedAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  // Relacionamento com Project: A qual projeto pertence este pagamento?
+  projectId         Int
+  project           Project   @relation(fields: [projectId], references: [id])
+}
+
+// Aqui criamos a nossa tabela de Contato!
+model Contato {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String
+  mensagem  String   @db.Text
+  criadoEm  DateTime @default(now())
+}
