@@ -1,5 +1,5 @@
 
-import { Header } from "../components/Header";
+import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "../styles/home.css";
 import heroVideo from "../assets/Tire_o_get_started_o_fundo_me-ezremove.mp4";

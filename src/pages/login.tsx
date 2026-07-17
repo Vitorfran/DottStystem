@@ -1,6 +1,7 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Header from "../components/Header";
+import logoImg from "../assets/imagens/logo.png";
 
 
 /**
@@ -47,17 +48,16 @@ function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        // SEGURANÇA & PERSISTÊNCIA:
-        // Se a resposta for 200, gravamos o token de acesso no localStorage
         localStorage.setItem("token", data.token);
-        
-        // Se quisermos salvar outros metadados não-sensíveis para uso na UI
         localStorage.setItem("userRole", data.role);
 
-        // Redireciona o cliente para o painel de projetos imediatamente
-        navigate("/dashboard");
+        // Redireciona conforme o papel do usuário
+        if (data.role === "admin" || data.role === "funcionario") {
+          navigate("/admin");
+        } else {
+          navigate("/dashboard");
+        }
       } else {
-        // Captura o erro customizado enviado pela nossa API Express (ex: 401 ou 400)
         setErro(data.message || "E-mail ou senha incorretos.");
       }
     } catch (err) {
@@ -73,6 +73,10 @@ function Login() {
     <Header />
     <section className="py-16 bg-gray-50 flex justify-center items-center min-h-[70vh]">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+        {/* Logotipo físico da Dott System */}
+        <div className="flex justify-center mb-6">
+          <img src={logoImg} alt="Dott System Logo" className="h-12 w-auto object-contain" />
+        </div>
         <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
           Área do Cliente
         </h2>
@@ -134,6 +138,15 @@ function Login() {
             )}
           </button>
         </form>
+
+        {/* Link para cadastro */}
+        <p className="text-center text-sm text-gray-500 mt-6">
+          Não tem conta?{" "}
+          <Link to="/cadastro" className="text-blue-600 font-bold hover:text-blue-800 transition">
+            Criar conta grátis
+          </Link>
+        </p>
+
       </div>
     </section>
     </>

@@ -18,8 +18,12 @@ model User{
   criadoEm  DateTime @default(now())
   atualizadoEm  DateTime @updatedAt
 
+  // Verificação de e-mail por código
+  emailVerificado     Boolean @default(false)
+  codigoVerificacao   String?
 
-  projects Project[]
+  projects            Project[] @relation("ProjectCliente")
+  responsibleProjects Project[] @relation("ProjectResponsavel")
 }
 
 model Project{
@@ -28,12 +32,17 @@ model Project{
   nome      String
   mensagem  String   @db.Text
   criadoEm  DateTime @default(now())
-  figma_link String
+  figma_link String?   @db.Text
   designAprovado Boolean @default(false)
-  dataEntrega DateTime
+  contrato_link String? @db.Text
+  contrato_assinado Boolean @default(false)
+  dataEntrega DateTime?
   clienteId    Int
-  cliente      User      @relation(fields: [clienteId], references: [id])
+  cliente      User      @relation("ProjectCliente", fields: [clienteId], references: [id])
   
+  responsavelId Int?
+  responsavel   User?     @relation("ProjectResponsavel", fields: [responsavelId], references: [id])
+
   // Relacionamento reverso virtual com os pagamentos
   payments     Payment[]
 }
