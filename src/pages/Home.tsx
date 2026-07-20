@@ -33,7 +33,7 @@ function Home() {
   const navigate = useNavigate();
 
   // Estado da aba de projeto em destaque
-  const [activeProjectTab, setActiveProjectTab] = useState<"mestre" | "meubone" | "odonto" | "dott">("mestre");
+  const [activeProjectTab, setActiveProjectTab] = useState<"mestre" | "meubone" | "odonto">("mestre");
   const [meuBoneSubView, setMeuBoneSubView] = useState<"landing" | "customizer">("landing");
 
   // Dados do Formulário
@@ -264,12 +264,6 @@ function Home() {
                 <img src={dottOdontoLogo} alt="Dott. Odontologia" className="w-5 h-5 rounded-full object-contain bg-white p-0.5 border border-slate-200" />
                 <span>Dott. Odontologia</span>
               </button>
-              <button
-                onClick={() => setActiveProjectTab("dott")}
-                className={`project-tab-btn ${activeProjectTab === "dott" ? "active" : ""}`}
-              >
-                <span>Dott System Dashboard</span>
-              </button>
             </div>
 
             {/* Detalhes Minimalistas do Projeto */}
@@ -297,7 +291,7 @@ function Home() {
                     E-Commerce com Studio Editor nativo para customização de bordados e cálculo de matriz em tempo real.
                   </p>
                 </>
-              ) : activeProjectTab === "odonto" ? (
+              ) : (
                 <>
                   <h3 className="text-3xl font-black text-slate-900 tracking-tight">Dott. Odontologia</h3>
                   <p className="text-slate-600 text-base font-medium leading-relaxed">
@@ -312,13 +306,6 @@ function Home() {
                     <span>odontodott.com.br</span>
                     <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3zM5 5h6v2H5v12h12v-6h2v6c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V7c0-1.1.9-2 2-2z"/></svg>
                   </a>
-                </>
-              ) : (
-                <>
-                  <h3 className="text-3xl font-black text-slate-900 tracking-tight">Dott System Dashboard</h3>
-                  <p className="text-slate-600 text-base font-medium leading-relaxed">
-                    Ecossistema de gestão de projetos, controle financeiro de faturas PIX e acompanhamento de etapas.
-                  </p>
                 </>
               )}
             </div>
@@ -360,9 +347,7 @@ function Home() {
                       ? "https://mestredasaliancas.com.br"
                       : activeProjectTab === "meubone"
                       ? "https://meubonebordado.com.br"
-                      : activeProjectTab === "odonto"
-                      ? "https://odontodott.com.br"
-                      : "https://dott.system/dashboard"}
+                      : "https://odontodott.com.br"}
                   </span>
                 </div>
 
