@@ -1,48 +1,45 @@
-# Base de Conhecimento - Mestre das Alianças
+# Base de Conhecimento Oficial - Mestre das Alianças
 
 ## Sobre a Empresa
-* **Nome da empresa:** Mestre das Alianças
-* **Instagram:** @mestredasaliancas (Alianças recife 💍)
+* **Nome oficial:** Mestre das Alianças
+* **Instagram oficial:** @mestredasaliancas (Alianças Recife 💍)
 * **Slogan:** Eternize seus momentos com a Mestre
 * **Site Oficial:** https://mestredasaliancas.com.br/index.html
-* **Diferenciais:** Gravação interna grátis, garantia eterna do metal, acabamento anatômico e envio seguro para todo o Brasil.
+* **E-mail de Contato Oficial:** contato@mestredasaliancas.com.br
+* **Telefone / WhatsApp Oficial:** (81) 98840-4020 | https://api.whatsapp.com/send?phone=5581988404020
+* **Diferenciais exclusivos:** Gravação interna de nomes e datas 100% gratuita, certificado de garantia eterna da autenticidade do metal, acabamento anatômico de máximo conforto e envio seguro com rastreamento para todo o Brasil.
 
-## Tipos de Produtos e Categorias
-* **Alianças:** Modelos para **Compromisso**, **Noivado** e **Casamento**.
-* **Anéis:** Anéis de **Formatura**, **Noivado** e **Solitário**.
+## Categorias de Produtos
+* **Alianças de Compromisso & Namoro:** Confeccionadas em **Prata 950 Legítima** com brilho espelhado e altíssima durabilidade. Pares a partir de R$ 199,00.
+* **Alianças de Noivado & Casamento:** Confeccionadas em **Ouro 18k (750)** nobre certificado ou **Ouro 10k (416)** legítimo de alta resistência. Pares a partir de R$ 1.290,00.
+* **Anéis Especiais:** Anéis Solitários, Anéis de Noivado e Anéis de Formatura.
 
-## Subcategorias de Alianças
-* **Aliança de Compromisso:** Ideal para namoro e compromisso, geralmente confeccionadas em Prata 950 premium ou Ouro.
-* **Aliança de Noivado:** Modelos elegantes em Ouro 18k, Ouro 10k ou Prata 950 para o pedido de casamento.
-* **Aliança de Casamento:** Alianças tradicionais e trabalhadas em Ouro 18k ou Ouro 10k para celebração do matrimônio.
+## Especificação de Materiais
+* **Prata 950:** Pureza de 95% de Prata de Lei. É a melhor prata do mercado para alianças de namoro, proporcionando brilho radiante e resistência duradoura.
+* **Ouro 18k (750):** Liga nobre com 75% de Ouro Puro. Material clássico e tradicional com garantia eterna do metal.
+* **Ouro 10k (416):** Liga em ouro legítimo com 41.6% de Ouro Puro. Altíssima durabilidade e excelente custo-benefício.
 
-## Materiais e Quilates Disponíveis
-* **Ouro 18k (750):** Ouro nobre certificado de altíssima pureza e durabilidade para a vida toda.
-* **Ouro 10k (416):** Opção em ouro legítimo de altíssima resistência com excelente custo-benefício.
-* **Prata 950:** Prata de lei de máxima pureza, brilho espelhado e alta durabilidade.
+## Estilos e Acabamentos
+* **Clássica:** Design liso, reto ou abaloado, atemporal e elegante.
+* **Trabalhada:** Com frisos diamantados, chanfros, acabamento fosco/escovado ou polido.
+* **Detalhada:** Com pedras (zircônias de alta qualidade ou brilhantes), aplicações sofisticadas.
+* **Acabamento Anatômico:** Formato curvo no interior da peça que reduz o atrito com a pele e garante conforto extremo no uso diário.
 
-## Estilos de Aliança
-* **Clássica:** Design liso, tradicional e atemporal.
-* **Trabalhada:** Com frisos, chanfros, acabamento fosco ou polido e detalhes desenhados.
-* **Simples:** Design reto ou levemente abaloado, discreto e confortável.
-* **Detalhada:** Com pedras (zircônias ou diamantes), frisos diamantados ou aplicação de pedras valiosas.
-
-## Especificações Técnicas e Acabamento
-* **Acabamento Anatômico:** Formato curvado internamente que se ajusta perfeitamente ao dedo proporcionando máximo conforto diário.
-* **Larguras Personalizadas:** Largura média ajustável em milímetros (ex: 3mm, 4mm, 5mm, 6mm, 8mm).
-* **Peso do Par:** Medido em gramas conforme a largura e o modelo escolhido.
-* **Gravação Grátis:** Gravação de nomes e datas no interior da peça 100% gratuita.
+## Serviços Inclusos e Cortesias
+* **Gravação Grátis:** Gravação de nomes e data especial no interior de ambas as peças inteiramente sem custo.
+* **Garantia Eterna:** Certificado de garantia permanente cobrindo o teor e a autenticidade do metal (Prata 950, Ouro 18k e Ouro 10k).
 
 ## Lojas Físicas e Endereços (Recife - PE)
-* **Unidade 1 - Boa Viagem:** Av. Conselheiro Aguiar, 2333 - Boa Viagem, Empresarial João Roma, Loja 11 (Térreo), Recife - PE.
-  - **Horário:** Segunda a Sexta: 09:00 às 17:00 | Sábado: 09:00 às 13:00 | Domingos e Feriados: Fechado.
-* **Unidade 2 - Santo Antônio:** Rua Camboa Do Carmo, 123 - Santo Antônio (Próximo à Igreja do Carmo, em frente à Beto Ótica), Recife - PE.
-  - **Horário:** Segunda a Sexta: 09:00 às 17:00 | Sábado: 09:00 às 14:00 | Domingos e Feriados: Fechado.
+* **Unidade Boa Viagem:** Av. Conselheiro Aguiar, 2333 - Boa Viagem (Empresarial João Roma, Loja 11 - Térreo), Recife - PE.
+  - **Horário:** Segunda a Sexta: 09:00 às 18:00 | Sábado: 09:00 às 13:00 | Domingos e Feriados: Fechado.
+* **Unidade Santo Antônio:** Rua Camboa Do Carmo, 123 - Santo Antônio (Próximo à Igreja do Carmo, em frente à Beto Ótica), Recife - PE.
+  - **Horário:** Segunda a Sexta: 09:00 às 18:00 | Sábado: 09:00 às 13:00 | Domingos e Feriados: Fechado.
 
-## FAQ
-* **Pergunta:** Quais tipos de aliança vocês têm?
-  **Resposta:** Temos alianças para Compromisso, Noivado e Casamento nos materiais Ouro 18k, Ouro 10k e Prata 950, com estilos Clássico, Trabalhado, Simples e Detalhado (com pedras e frisos).
-* **Pergunta:** O que é acabamento anatômico?
-  **Resposta:** É a curvatura interna da aliança que diminui o contato com a pele, proporcionando extremo conforto no uso diário.
-* **Pergunta:** A gravação paga valor extra?
-  **Resposta:** Não! A gravação interna dos nomes e datas é inteiramente gratuita em todos os pares.
+## Atendimento Online & Entrega
+* Atendimento 24h pelo site: https://mestredasaliancas.com.br/index.html
+* E-mail oficial: contato@mestredasaliancas.com.br
+* WhatsApp Oficial: (81) 98840-4020
+* Coleção de Prata 950: https://mestredasaliancas.com.br/prata.html
+* Coleção de Ouro 18k / 10k: https://mestredasaliancas.com.br/ouro.html
+* Envio seguro com código de rastreamento para todo o Brasil.
+* Pagamento em até 12x sem juros no cartão ou com desconto especial via Pix.

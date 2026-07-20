@@ -21,6 +21,7 @@ function Header() {
       return;
     }
 
+
     // Busca o nome do usuário logado na API
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
     fetch(`${apiUrl}/api/auth/me`, {
@@ -41,7 +42,9 @@ function Header() {
     window.location.href = "/";
   };
 
-  // Destino do painel conforme o papel do usuário
+
+
+  // Destino do painel conforme o papel do usuário ( role ) 
   const painelLink = usuario?.role === "admin" || usuario?.role === "funcionario" ? "/admin" : "/dashboard";
   const nomePrimeiro = usuario?.nome?.split(" ")[0] || "";
 

@@ -2,7 +2,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 /**
- * Página "Sobre Nós" (About) da Dott System.
+ * Página "Sobre Nós" (About) da Dott System.  Mlstrar fatos sobre a empresa e etc
  * 
  * Atualizada para incluir um grid de tecnologia balanceado de 9 cards (formato 3x3)
  * contendo Bancos de Dados (MySQL / PostgreSQL) com representação vetorial em cilindros.

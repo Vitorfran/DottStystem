@@ -9,7 +9,7 @@ export function Footer() {
           <p className="footer-description">
             Sistemas inteligentes projetados para empresas que desejam otimizar processos e escalar com eficiência.
           </p>
-        </div>
+        </div>  
 
         <div className="footer-links">
           <h4>Navegação</h4>

@@ -8,10 +8,17 @@ import mobileMockup from "../assets/imagens/mobile_mockup.png";
 import mestreDesktop from "../assets/imagens/mestre_das_aliancas_desktop.png";
 import mestreMobile from "../assets/imagens/mestre_das_aliancas_mobile.png";
 import mestreLogo from "../assets/imagens/mestre_das_aliancas_logo.jpg";
+import meuBoneDesktop from "../assets/imagens/meu_bone_desktop.png";
+import meuBoneMobile from "../assets/imagens/meu_bone_mobile.png";
+import meuBoneEditorDesktop from "../assets/imagens/meu_bone_editor_desktop.png";
+import meuBoneEditorMobile from "../assets/imagens/meu_bone_editor_mobile.png";
+import meuBoneLogo from "../assets/imagens/meu_bone_logo.png";
+import dottOdontoLogo from "../assets/imagens/dott_odontologia_logo.jpg";
+import dottOdontoDesktop from "../assets/imagens/dott_odontologia_desktop.png";
+import dottOdontoMobile from "../assets/imagens/dott_odontologia_mobile.png";
 import heroVideo from "../assets/Tire_o_get_started_o_fundo_me-ezremove.mp4";
 import { motion } from "framer-motion";
 import Chatbot from '../components/Chatbot';
-import ChatbotMestre from '../components/ChatbotMestre';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -26,7 +33,8 @@ function Home() {
   const navigate = useNavigate();
 
   // Estado da aba de projeto em destaque
-  const [activeProjectTab, setActiveProjectTab] = useState<"mestre" | "dott">("mestre");
+  const [activeProjectTab, setActiveProjectTab] = useState<"mestre" | "meubone" | "odonto" | "dott">("mestre");
+  const [meuBoneSubView, setMeuBoneSubView] = useState<"landing" | "customizer">("landing");
 
   // Dados do Formulário
   const [dadosFormulario, setDadosFormulario] = useState({
@@ -94,15 +102,20 @@ function Home() {
             
             {/* Lado Esquerdo: Textos & CTAs */}
             <div className="hero-text-content">
-              <motion.div
-                className="hero-badge"
+
+              {/* Atalho Interativo para Criar Projeto */}
+              <motion.button
+                onClick={() => navigate("/criar-projeto")}
+                className="hero-badge-shortcut"
                 custom={0}
                 variants={fadeUp}
                 initial="hidden"
                 animate="visible"
               >
-           
-              </motion.div>
+                <span className="badge-sparkle">✨</span>
+                <span>Assistente de Briefing Inteligente Dott IA</span>
+                <span className="badge-arrow">➔</span>
+              </motion.button>
 
               <motion.h1
                 className="hero-title"
@@ -136,14 +149,33 @@ function Home() {
                   onClick={() => navigate("/criar-projeto")}
                   className="btn-hero btn-hero-primary"
                 >
-                  Criar Proposta de Projeto
+                  🚀 Iniciar Proposta de Projeto
                 </button>
                 <a
                   href="#preview"
                   className="btn-hero btn-hero-secondary"
                 >
-                  Ver Projetos
+                  🔍 Ver Cases de Sucesso
                 </a>
+              </motion.div>
+
+              {/* Card Banner de Atalho Rápido */}
+              <motion.div
+                onClick={() => navigate("/criar-projeto")}
+                className="hero-quick-banner-shortcut"
+                custom={4}
+                variants={fadeUp}
+                initial="hidden"
+                animate="visible"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="shortcut-icon-circle">💡</div>
+                  <div className="text-left">
+                    <h4 className="font-extrabold text-slate-900 text-sm">Tem uma ideia para o seu projeto?</h4>
+                    <p className="text-xs text-slate-500 font-medium">Clique aqui, monte seu briefing por voz ou texto e receba o escopo gerado por IA.</p>
+                  </div>
+                </div>
+                <div className="shortcut-arrow-badge">Começar Agora ➔</div>
               </motion.div>
             </div>
 
@@ -168,11 +200,28 @@ function Home() {
               >
                 <img src={mestreLogo} alt="Mestre das Alianças" className="client-logo-img-large" />
               </div>
-              <div className="client-logo">🍕 Bella Restaurante</div>
-              <div className="client-logo">🏋️ FitLife Academia</div>
-              <div className="client-logo">🏠 ImobMax Corretora</div>
-              <div className="client-logo">⚖️ Advocacia Melo</div>
-              <div className="client-logo">🛒 Moda Prime Store</div>
+              <div 
+                className="client-logo-featured-wrapper" 
+                onClick={() => {
+                  setActiveProjectTab("meubone");
+                  const elem = document.getElementById("preview");
+                  elem?.scrollIntoView({ behavior: "smooth" });
+                }}
+                title="Meu Boné Bordado — Clique para ver o projeto em destaque"
+              >
+                <img src={meuBoneLogo} alt="Meu Boné Bordado" className="client-logo-img-large blue-border" />
+              </div>
+              <div 
+                className="client-logo-featured-wrapper" 
+                onClick={() => {
+                  setActiveProjectTab("odonto");
+                  const elem = document.getElementById("preview");
+                  elem?.scrollIntoView({ behavior: "smooth" });
+                }}
+                title="Dott. Odontologia — Clique para ver o projeto em destaque"
+              >
+                <img src={dottOdontoLogo} alt="Dott. Odontologia" className="client-logo-img-large dark-border" />
+              </div>
             </div>
           </div>
         </section>
@@ -183,97 +232,231 @@ function Home() {
         <section className="preview-section" id="preview">
           <div className="preview-container">
             <div className="section-header">
-              <h2 className="section-title">Nossos Projetos & Cases de Sucesso</h2>
+              <span className="inline-block text-indigo-600 font-extrabold uppercase tracking-widest text-[11px] bg-indigo-50 border border-indigo-100 px-4 py-1.5 rounded-full mb-3">
+                Portfólio Corporativo
+              </span>
+              <h2 className="section-title">Cases de Sucesso & Engenharia</h2>
               <p className="section-subtitle">
-                Desenvolvemos plataformas com design exclusivo, arquitetura limpa de software e alta taxa de conversão.
+                Plataformas desenvolvidas com arquitetura limpa, design exclusivo de alta conversão e infraestrutura escalável.
               </p>
             </div>
 
-            {/* Abas de Seleção de Projetos */}
+            {/* Abas de Seleção Minimalistas */}
             <div className="project-tabs-container">
               <button
                 onClick={() => setActiveProjectTab("mestre")}
-                className={`project-tab-btn ${activeProjectTab === "mestre" ? "active gold-tab" : ""}`}
+                className={`project-tab-btn ${activeProjectTab === "mestre" ? "active" : ""}`}
               >
                 <img src={mestreLogo} alt="Mestre das Alianças" className="w-5 h-5 rounded-full object-cover" />
-                <span>Mestre das Alianças (Joalheria Premium)</span>
+                <span>Mestre das Alianças</span>
+              </button>
+              <button
+                onClick={() => setActiveProjectTab("meubone")}
+                className={`project-tab-btn ${activeProjectTab === "meubone" ? "active" : ""}`}
+              >
+                <img src={meuBoneLogo} alt="Meu Boné Bordado" className="w-5 h-5 rounded-full object-contain bg-white p-0.5 border border-slate-200" />
+                <span>Meu Boné Bordado</span>
+              </button>
+              <button
+                onClick={() => setActiveProjectTab("odonto")}
+                className={`project-tab-btn ${activeProjectTab === "odonto" ? "active" : ""}`}
+              >
+                <img src={dottOdontoLogo} alt="Dott. Odontologia" className="w-5 h-5 rounded-full object-contain bg-white p-0.5 border border-slate-200" />
+                <span>Dott. Odontologia</span>
               </button>
               <button
                 onClick={() => setActiveProjectTab("dott")}
                 className={`project-tab-btn ${activeProjectTab === "dott" ? "active" : ""}`}
               >
-                <span>💻 Dott System Dashboard</span>
+                <span>Dott System Dashboard</span>
               </button>
             </div>
 
-            {/* Card Detalhes do Projeto Ativo */}
-            <div className="project-details-card">
+            {/* Detalhes Minimalistas do Projeto */}
+            <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
               {activeProjectTab === "mestre" ? (
                 <>
-                  <span className="project-details-tag">👑 Case em Destaque — Joalheria & E-commerce</span>
-                  <h3 className="project-details-title">Mestre das Alianças</h3>
-                  <p className="project-details-desc">
-                    Plataforma e-commerce e Landing Page desenvolvida com alta performance para exibição e venda de Alianças de Ouro 18k e Prata 950. Conta com gravação gratuita, garantia eterna e integração para atendimento nacional.
+                  <h3 className="text-3xl font-black text-slate-900 tracking-tight">Mestre das Alianças</h3>
+                  <p className="text-slate-600 text-base font-medium leading-relaxed">
+                    E-commerce de joias finas com catálogo responsivo de Alianças de Ouro 18k e Prata 950.
                   </p>
-                  <div className="project-badges-list">
-                    <span className="project-badge-pill">✨ Ouro 18k & Prata 950</span>
-                    <span className="project-badge-pill">📱 Layout 100% Responsivo</span>
-                    <span className="project-badge-pill">🚀 Alta Velocidade & SEO</span>
-                    <span className="project-badge-pill">🛡️ Gravação & Garantia Eterna</span>
-                  </div>
+                  <a 
+                    href="https://mestredasaliancas.com.br" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="inline-flex items-center gap-1.5 text-indigo-600 hover:text-indigo-800 font-bold text-sm transition pt-1"
+                  >
+                    <span>mestredasaliancas.com.br</span>
+                    <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3zM5 5h6v2H5v12h12v-6h2v6c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V7c0-1.1.9-2 2-2z"/></svg>
+                  </a>
+                </>
+              ) : activeProjectTab === "meubone" ? (
+                <>
+                  <h3 className="text-3xl font-black text-slate-900 tracking-tight">Meu Boné Bordado</h3>
+                  <p className="text-slate-600 text-base font-medium leading-relaxed">
+                    E-Commerce com Studio Editor nativo para customização de bordados e cálculo de matriz em tempo real.
+                  </p>
+                </>
+              ) : activeProjectTab === "odonto" ? (
+                <>
+                  <h3 className="text-3xl font-black text-slate-900 tracking-tight">Dott. Odontologia</h3>
+                  <p className="text-slate-600 text-base font-medium leading-relaxed">
+                    Plataforma institucional de odontologia com agendamento online e atendimento personalizado.
+                  </p>
+                  <a 
+                    href="https://odontodott.com.br" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="inline-flex items-center gap-1.5 text-indigo-600 hover:text-indigo-800 font-bold text-sm transition pt-1"
+                  >
+                    <span>odontodott.com.br</span>
+                    <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3zM5 5h6v2H5v12h12v-6h2v6c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V7c0-1.1.9-2 2-2z"/></svg>
+                  </a>
                 </>
               ) : (
                 <>
-                  <span className="project-details-tag" style={{ background: "rgba(79,70,229,0.12)", color: "#4f46e5" }}>💻 Sistema Corporativo — Gestão & Dashboard</span>
-                  <h3 className="project-details-title">Plataforma Dott System</h3>
-                  <p className="project-details-desc">
-                    Ecossistema interno de acompanhamento de etapas de desenvolvimento, gestão financeira de faturas via PIX/Boleto e painel interativo de clientes.
+                  <h3 className="text-3xl font-black text-slate-900 tracking-tight">Dott System Dashboard</h3>
+                  <p className="text-slate-600 text-base font-medium leading-relaxed">
+                    Ecossistema de gestão de projetos, controle financeiro de faturas PIX e acompanhamento de etapas.
                   </p>
-                  <div className="project-badges-list">
-                    <span className="project-badge-pill">⚡ React & TypeScript</span>
-                    <span className="project-badge-pill">🔒 Autenticação JWT</span>
-                    <span className="project-badge-pill">💳 Pagamentos PIX</span>
-                    <span className="project-badge-pill">📊 Painel em Tempo Real</span>
-                  </div>
                 </>
               )}
             </div>
 
-            {/* Mockups Visualizadores */}
-            <div className="preview-devices">
-              <motion.div
-                key={activeProjectTab + "-desktop"}
-                className="preview-desktop"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-              >
-                <div className="preview-label">
-                  {activeProjectTab === "mestre" ? "💻 Site Mestre das Alianças — Desktop" : "💻 Dott System — Desktop"}
-                </div>
-                <img 
-                  src={activeProjectTab === "mestre" ? mestreDesktop : desktopMockup} 
-                  alt={activeProjectTab === "mestre" ? "Site Mestre das Alianças Desktop" : "Mockup de Plataforma Desktop Dott"} 
-                  className="preview-img" 
-                />
-              </motion.div>
+            {/* Alternador de Visão para o Case Meu Boné Bordado */}
+            {activeProjectTab === "meubone" && (
+              <div className="subview-toggle-container">
+                <button
+                  onClick={() => setMeuBoneSubView("landing")}
+                  className={`subview-btn ${meuBoneSubView === "landing" ? "active" : ""}`}
+                >
+                  <span className="subview-icon">🌐</span> E-Commerce Storefront
+                </button>
+                <button
+                  onClick={() => setMeuBoneSubView("customizer")}
+                  className={`subview-btn ${meuBoneSubView === "customizer" ? "active" : ""}`}
+                >
+                  <span className="subview-icon">🎨</span> Studio Editor Nativo
+                </button>
+              </div>
+            )}
 
-              <motion.div
-                key={activeProjectTab + "-mobile"}
-                className="preview-mobile"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
-              >
-                <div className="preview-label">
-                  {activeProjectTab === "mestre" ? "📱 Site Mestre das Alianças — Mobile" : "📱 Dott System — Mobile"}
+            {/* BROWSER MOCKUP CONTAINER (PADRÃO CORPORATIVO BIG TECH) */}
+            <div className="browser-mockup-container">
+              {/* Barra do Navegador */}
+              <div className="browser-mockup-bar">
+                <div className="browser-mockup-dots">
+                  <span className="browser-dot browser-dot-red" />
+                  <span className="browser-dot browser-dot-yellow" />
+                  <span className="browser-dot browser-dot-green" />
                 </div>
-                <img 
-                  src={activeProjectTab === "mestre" ? mestreMobile : mobileMockup} 
-                  alt={activeProjectTab === "mestre" ? "Site Mestre das Alianças Mobile" : "Mockup Mobile Dott"} 
-                  className="preview-img preview-img-mobile" 
-                />
-              </motion.div>
+                
+                <div className="browser-mockup-url">
+                  <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457-.312-2.841-.873-4.084" />
+                  </svg>
+                  <span>
+                    {activeProjectTab === "mestre"
+                      ? "https://mestredasaliancas.com.br"
+                      : activeProjectTab === "meubone"
+                      ? "https://meubonebordado.com.br"
+                      : activeProjectTab === "odonto"
+                      ? "https://odontodott.com.br"
+                      : "https://dott.system/dashboard"}
+                  </span>
+                </div>
+
+                {activeProjectTab === "mestre" || activeProjectTab === "odonto" ? (
+                  <a
+                    href={activeProjectTab === "mestre" ? "https://mestredasaliancas.com.br" : "https://odontodott.com.br"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="corporate-visit-link-btn"
+                  >
+                    <span>Acessar</span>
+                    <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3zM5 5h6v2H5v12h12v-6h2v6c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V7c0-1.1.9-2 2-2z"/></svg>
+                  </a>
+                ) : (
+                  <div className="w-20" />
+                )}
+              </div>
+
+              {/* Conteúdo dos Mockups dentro do Browser Frame */}
+              <div className="preview-devices">
+                <motion.div
+                  key={activeProjectTab + "-" + meuBoneSubView + "-desktop"}
+                  className={`preview-desktop ${activeProjectTab === "mestre" || activeProjectTab === "odonto" ? "clickable" : ""}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  onClick={() => {
+                    if (activeProjectTab === "mestre") {
+                      window.open("https://mestredasaliancas.com.br", "_blank", "noopener,noreferrer");
+                    } else if (activeProjectTab === "odonto") {
+                      window.open("https://odontodott.com.br", "_blank", "noopener,noreferrer");
+                    }
+                  }}
+                >
+                  <img 
+                    src={
+                      activeProjectTab === "mestre"
+                        ? mestreDesktop
+                        : activeProjectTab === "meubone"
+                        ? (meuBoneSubView === "landing" ? meuBoneDesktop : meuBoneEditorDesktop)
+                        : activeProjectTab === "odonto"
+                        ? dottOdontoDesktop
+                        : desktopMockup
+                    } 
+                    alt={
+                      activeProjectTab === "mestre"
+                        ? "Site Mestre das Alianças Desktop"
+                        : activeProjectTab === "meubone"
+                        ? (meuBoneSubView === "landing" ? "Site Meu Boné Bordado Desktop" : "Editor Customizador Meu Boné Bordado Desktop")
+                        : activeProjectTab === "odonto"
+                        ? "Site Dott. Odontologia Desktop"
+                        : "Mockup de Plataforma Desktop Dott"
+                    } 
+                    className="preview-img" 
+                  />
+                </motion.div>
+
+                <motion.div
+                  key={activeProjectTab + "-" + meuBoneSubView + "-mobile"}
+                  className={`preview-mobile ${activeProjectTab === "mestre" || activeProjectTab === "odonto" ? "clickable" : ""}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
+                  onClick={() => {
+                    if (activeProjectTab === "mestre") {
+                      window.open("https://mestredasaliancas.com.br", "_blank", "noopener,noreferrer");
+                    } else if (activeProjectTab === "odonto") {
+                      window.open("https://odontodott.com.br", "_blank", "noopener,noreferrer");
+                    }
+                  }}
+                >
+                  <img 
+                    src={
+                      activeProjectTab === "mestre"
+                        ? mestreMobile
+                        : activeProjectTab === "meubone"
+                        ? (meuBoneSubView === "landing" ? meuBoneMobile : meuBoneEditorMobile)
+                        : activeProjectTab === "odonto"
+                        ? dottOdontoMobile
+                        : mobileMockup
+                    } 
+                    alt={
+                      activeProjectTab === "mestre"
+                        ? "Site Mestre das Alianças Mobile"
+                        : activeProjectTab === "meubone"
+                        ? (meuBoneSubView === "landing" ? "Site Meu Boné Bordado Mobile" : "Editor Customizador Meu Boné Bordado Mobile")
+                        : activeProjectTab === "odonto"
+                        ? "Site Dott. Odontologia Mobile"
+                        : "Mockup Mobile Dott"
+                    } 
+                    className="preview-img preview-img-mobile" 
+                  />
+                </motion.div>
+              </div>
             </div>
           </div>
         </section>
@@ -486,9 +669,8 @@ function Home() {
 
       </main>
 
-      {/* Chatbots (Direita: Dott System | Esquerda: Mestre das Alianças) */}
+      {/* Chatbot Oficial Dott System */}
       <Chatbot />
-      <ChatbotMestre />
 
       <Footer />
     </>

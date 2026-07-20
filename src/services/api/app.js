@@ -59,14 +59,14 @@ function authMiddleware(req, res, next) {
 }
 
 
-app.post("/api/contato", async (req,res) => {
+app.post("/api/contato", async (req, res) => {
     // pegar dados com o fecth do Front ( papel do cliente )
 
     const { nome, email, mensagem, fotos } = req.body;
 
 
-    if(!nome || !email || !mensagem) {
-        return res.status(400).json({message: "Todos os campos são obrigatórios!"});
+    if (!nome || !email || !mensagem) {
+        return res.status(400).json({ message: "Todos os campos são obrigatórios!" });
     }
 
     console.log("Validação passou! Dados:", nome, email, mensagem);
@@ -75,13 +75,13 @@ app.post("/api/contato", async (req,res) => {
 
     // salvar no banco usando o prisma ORM 
     const novoContato = await prisma.contato.create({
-     data: {
-        nome: nome,
-        email: email,
-        mensagem: mensagem,
-        fotos: fotos || null
-    }
-});
+        data: {
+            nome: nome,
+            email: email,
+            mensagem: mensagem,
+            fotos: fotos || null
+        }
+    });
 
 
 
@@ -89,25 +89,25 @@ app.post("/api/contato", async (req,res) => {
     console.log("Contato salvo no banco de dados:", novoContato);
 
 
-    console.log ("Enviando email para o administrador do site...");
+    console.log("Enviando email para o administrador do site...");
 
     // enviar email Responder 
 
-   const infoEmail = await transporter.sendMail({
-            from: `"Dott System" <${process.env.EMAIL_USER}>`, // Quem envia (o sistema)
-            to: process.env.EMAIL_USER, // Para quem vai (para você mesmo receber o aviso)
-            subject: `Novo orçamento recebido: ${nome}`, // Assunto do e-mail
-            html: `
+    const infoEmail = await transporter.sendMail({
+        from: `"Dott System" <${process.env.EMAIL_USER}>`, // Quem envia (o sistema)
+        to: process.env.EMAIL_USER, // Para quem vai (para você mesmo receber o aviso)
+        subject: `Novo orçamento recebido: ${nome}`, // Assunto do e-mail
+        html: `
                 <h2>Novo contato pelo site!</h2>
                 <p><strong>Nome:</strong> ${nome}</p>
                 <p><strong>E-mail do Cliente:</strong> ${email}</p>
                 <p><strong>Mensagem:</strong></p>
                 <p>${mensagem}</p>
             `
-        });
-        console.log("E-mail enviado com sucesso!", infoEmail.messageId);
-        
-    res.status(200).json({message: "Mensagem recebida com sucesso!"});
+    });
+    console.log("E-mail enviado com sucesso!", infoEmail.messageId);
+
+    res.status(200).json({ message: "Mensagem recebida com sucesso!" });
 });
 
 
@@ -280,7 +280,7 @@ app.post("/api/auth/login", async (req, res) => {
 // Listar Projetos usando o middleware
 
 
-app.get("/api/projetos", authMiddleware, async (req,res) => {
+app.get("/api/projetos", authMiddleware, async (req, res) => {
 
     try {
         const { projectId } = req.query;
@@ -307,17 +307,17 @@ app.get("/api/projetos", authMiddleware, async (req,res) => {
             where: queryCondition,
             include: {
                 payments: true // Inclui os pagamentos do projeto
-            }        
+            }
         });
-        
-        if(!projeto){
-            return res.status(404).json({message: "Projeto nao encontrado!"});
+
+        if (!projeto) {
+            return res.status(404).json({ message: "Projeto nao encontrado!" });
         }
 
 
-        res.status(200).json({projeto: projeto});
+        res.status(200).json({ projeto: projeto });
     } catch (error) {
-        res.status(500).json({message: "Erro ao buscar projeto."});
+        res.status(500).json({ message: "Erro ao buscar projeto." });
     }
 
 
@@ -334,48 +334,70 @@ app.post("/api/contato/refinar", async (req, res) => {
     }
     try {
         const prompt = `Formate e estruture o texto abaixo em um escopo limpo e legível de projeto de software.
-ATENÇÃO: Não use ou chame nenhuma ferramenta externa. Escreva tudo em Português do Brasil com linguagem simples, sem jargões técnicos.
+ATENÇÃO: Responda em Português do Brasil com linguagem simples, sem jargões técnicos.
 
 Ideia original do cliente: "${mensagem}"
 
-Escreva seguindo exatamente esta estrutura:
+Escreva seguindo exatamente esta estrutura Markdown:
 
 ## 📌 Nome do Projeto
 (Sugira um nome criativo)
 
 ## 🎯 O que será criado
-(Explicação simples e objetiva do projeto)
+(Explicação simples e objetiva do projeto em 2 a 3 frases)
 
 ## ✅ Principais Funcionalidades
 (Lista com 3 a 5 pontos-chave do sistema)
 
 ## 👥 Usuários
-(Quem vai utilizar)
+(Quem vai utilizar a plataforma)
 
 ## 📱 Formato
-(Se é site, aplicativo móvel, sistema de computador, etc.)`;
-        
-        let escopoRefinado = await enviarMensagemParaLangflow(prompt);
-        
-        // Remove blocos JSON e preâmbulos de ferramentas caso a IA os retorne mesmo assim
+(Se é site, aplicativo móvel, e-commerce, sistema de computador, etc.)`;
+
+        let escopoRefinado = null;
+
+        // 1. Tenta via Groq (Llama 3) se a API key estiver disponível
+        if (process.env.GROQ_API_KEY) {
+            try {
+                escopoRefinado = await enviarMensagemParaGroqLlama(prompt);
+            } catch (errGroq) {
+                console.log("Groq Llama indisponível para briefing:", errGroq.message);
+            }
+        }
+
+        // 2. Tenta via Gemini se disponível
+        if ((!escopoRefinado || escopoRefinado.length < 50) && (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY)) {
+            try {
+                escopoRefinado = await enviarMensagemParaGeminiMestre(prompt);
+            } catch (errGemini) {
+                console.log("Gemini indisponível para briefing:", errGemini.message);
+            }
+        }
+
+        // 3. Remove caracteres indesejados ou blocos brutos se necessário
         if (escopoRefinado) {
             escopoRefinado = escopoRefinado.replace(/\{[\s\S]*?\}/g, '');
-            escopoRefinado = escopoRefinado.replace(/Aqui está a função[\s\S]*?:/gi, '');
-            escopoRefinado = escopoRefinado.replace(/Vou precisar buscar[\s\S]*?:/gi, '');
-            escopoRefinado = escopoRefinado.replace(/Vou precisar buscar[\s\S]*?\./gi, '');
+            escopoRefinado = escopoRefinado.replace(/Aqui está[\s\S]*?:/gi, '');
             escopoRefinado = escopoRefinado.trim();
         }
 
-        // Se a IA ainda assim retornar vazia ou contiver lixo de função, usamos o fallback dinâmico baseado na mensagem do cliente
-        if (!escopoRefinado || escopoRefinado.includes('search_documents') || escopoRefinado.length < 50) {
-            const nomeSugerido = mensagem.length < 25 ? mensagem : "Projeto Customizado";
-            escopoRefinado = `## 📌 Nome do Projeto\n${nomeSugerido}\n\n## 🎯 O que será criado\nUm sistema sob medida projetado a partir da especificação do cliente: "${mensagem}".\n\n## ✅ Principais Funcionalidades\n- Atendimento aos requisitos detalhados pelo cliente\n- Painel de administração seguro e fácil de usar\n- Integrações necessárias para o funcionamento do fluxo\n\n## 👥 Usuários\nAdministradores e usuários finais do sistema.\n\n## 📱 Formato\nPlataforma digital responsiva (Web/Mobile).`;
+        // 4. Fallback dinâmico caso serviços de IA estejam offline ou sem chave configurada
+        if (!escopoRefinado || escopoRefinado.length < 50) {
+            const palavras = mensagem.trim().split(/\s+/);
+            const nomeSugerido = palavras.length <= 4 
+                ? `Projeto ${mensagem.trim()}`
+                : `Sistema ${palavras.slice(0, 3).join(' ')}`;
+
+            escopoRefinado = `## 📌 Nome do Projeto\n${nomeSugerido}\n\n## 🎯 O que será criado\nPlataforma digital desenvolvida sob medida com base nos requisitos especificados: "${mensagem}".\n\n## ✅ Principais Funcionalidades\n- Interface moderna e responsiva (adaptada para computadores e celulares)\n- Painel de controle e gerenciamento seguro\n- Formulários de cadastro, interações e fluxos operacionais\n- Integrações automatizadas e relatórios de acompanhamento\n\n## 👥 Usuários\nAdministradores, gestores e clientes finais da plataforma.\n\n## 📱 Formato\nPlataforma digital responsiva Web & Mobile (PWA).`;
         }
 
         res.status(200).json({ escopo: escopoRefinado });
     } catch (error) {
         console.error("Erro ao refinar briefing:", error);
-        res.status(500).json({ message: "Erro ao refinar o briefing com a IA. Tente novamente." });
+        const nomeFallback = mensagem.length < 30 ? mensagem : "Projeto Sob Medida";
+        const escopoFallback = `## 📌 Nome do Projeto\n${nomeFallback}\n\n## 🎯 O que será criado\nSistema digital sob medida desenvolvido a partir da especificação: "${mensagem}".\n\n## ✅ Principais Funcionalidades\n- Layout responsivo e intuitivo\n- Painel administrativo e controle de acessos\n- Notificações e comunicação integrada\n\n## 👥 Usuários\nGestores e usuários do sistema.\n\n## 📱 Formato\nPlataforma Web Responsiva.`;
+        res.status(200).json({ escopo: escopoFallback });
     }
 });
 
@@ -392,7 +414,7 @@ app.post("/api/admin/aprovar-contato/:id", async (req, res) => {
     if (isNaN(contatoId)) {
         return res.status(400).json({ message: "ID do contato inválido." });
     }
-    
+
     const { nome, valorTotal, valorEntrada, valorFinal, trelloLink, contratoLink } = req.body;
 
     try {
@@ -426,7 +448,7 @@ app.post("/api/admin/aprovar-contato/:id", async (req, res) => {
         // 3. Cria o projeto associado a esse cliente
         const nomeFinalProjeto = nome || `Projeto ${contato.nome}`;
         const contratoLinkFinal = contratoLink || "https://zapsign.com.br/sign/dott-system-contrato-modelo";
-        
+
         const projeto = await prisma.project.create({
             data: {
                 nome: nomeFinalProjeto,
@@ -492,8 +514,8 @@ app.post("/api/admin/aprovar-contato/:id", async (req, res) => {
                             <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
                                 <div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: bold; letter-spacing: 1px; margin-bottom: 12px;">Detalhes do Projeto</div>
                                 <div style="margin-bottom: 8px; font-size: 14px;"><strong style="color: #94a3b8;">Projeto:</strong> <span style="color: #f1f5f9; font-weight: 600;">${nomeFinalProjeto}</span></div>
-                                <div style="margin-bottom: 8px; font-size: 14px;"><strong style="color: #94a3b8;">Investimento Total:</strong> <span style="color: #818cf8; font-weight: bold;">R$ ${vTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>
-                                <div style="font-size: 14px;"><strong style="color: #94a3b8;">Condição:</strong> <span style="color: #f1f5f9;">Entrada de R$ ${vEntrada.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} + R$ ${vFinal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} na entrega.</span></div>
+                                <div style="margin-bottom: 8px; font-size: 14px;"><strong style="color: #94a3b8;">Investimento Total:</strong> <span style="color: #818cf8; font-weight: bold;">R$ ${vTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+                                <div style="font-size: 14px;"><strong style="color: #94a3b8;">Condição:</strong> <span style="color: #f1f5f9;">Entrada de R$ ${vEntrada.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} + R$ ${vFinal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} na entrega.</span></div>
                             </div>
 
                             <p style="color: #94a3b8; font-size: 14px; margin-bottom: 16px;">Para iniciar, acesse seu painel do cliente para assinar o contrato digital e realizar o pagamento da entrada:</p>
@@ -620,7 +642,7 @@ app.post("/api/projetos/:id/aprovar-design", authMiddleware, async (req, res) =>
         // Registra a aprovação do design
         const projetoAtualizado = await prisma.project.update({
             where: { id: projetoId },
-            data: { 
+            data: {
                 designAprovado: true,
                 etapa_atual: "DESENVOLVIMENTO" // Avança para Desenvolvimento
             }
@@ -782,7 +804,7 @@ app.post("/api/chat", async (req, res) => {
 async function enviarMensagemParaLangflow(mensagemUsuario, sessionId) {
     const url = "http://localhost:7860/api/v1/run/6e203c0f-fbd9-47a7-980f-0923c09c95ae";
     const idSessao = sessionId || crypto.randomUUID();
-    
+
     const payload = {
         output_type: "chat",
         input_type: "chat",
@@ -804,7 +826,7 @@ async function enviarMensagemParaLangflow(mensagemUsuario, sessionId) {
     });
 
     if (!response.ok) throw new Error(`Status ${response.status}`);
-    
+
     const data = await response.json();
     return data.outputs[0].outputs[0].results.message.text;
 }
@@ -815,39 +837,39 @@ function processarRespostaInteligenteDott(mensagemUsuario, respostaBase) {
     // 1. Petshop ou negócios específicos
     if (msg.includes("petshop") || msg.includes("pet shop") || msg.includes("pet")) {
         return "Com certeza! Para o seu **Petshop**, desenvolvemos soluções completas focadas em captação de clientes e agendamentos:\n\n" +
-               "🐶 **Recursos ideais para Petshop:**\n" +
-               "• Catálogo de serviços (Banho, Tosa, Clínica Veterinária)\n" +
-               "• Botão de Agendamento direto no WhatsApp\n" +
-               "• Vitrine de rações e acessórios\n" +
-               "• Fotos, localização e depoimentos de clientes\n\n" +
-               "💰 **Opções de Investimento:**\n" +
-               "• **Landing Page Express:** R$ 890 (Entrega em 5-7 dias, foco em agendamentos no WhatsApp)\n" +
-               "• **Site Institucional:** R$ 2.490 (Entrega em 10-15 dias, até 6 páginas com serviços e fotos)\n" +
-               "• **Loja Virtual / E-commerce:** R$ 7.990 (Entrega em 30-40 dias, catálogo e vendas online)\n\n" +
-               "Quer iniciar a proposta para o seu Petshop agora mesmo? Clique em [Criar Proposta de Projeto](/criar-projeto)!";
+            "🐶 **Recursos ideais para Petshop:**\n" +
+            "• Catálogo de serviços (Banho, Tosa, Clínica Veterinária)\n" +
+            "• Botão de Agendamento direto no WhatsApp\n" +
+            "• Vitrine de rações e acessórios\n" +
+            "• Fotos, localização e depoimentos de clientes\n\n" +
+            "💰 **Opções de Investimento:**\n" +
+            "• **Landing Page Express:** R$ 890 (Entrega em 5-7 dias, foco em agendamentos no WhatsApp)\n" +
+            "• **Site Institucional:** R$ 2.490 (Entrega em 10-15 dias, até 6 páginas com serviços e fotos)\n" +
+            "• **Loja Virtual / E-commerce:** R$ 7.990 (Entrega em 30-40 dias, catálogo e vendas online)\n\n" +
+            "Quer iniciar a proposta para o seu Petshop agora mesmo? Clique em [Criar Proposta de Projeto](/criar-projeto)!";
     }
 
     // 2. Preço / Orçamento / Quanto custa
     if (msg.includes("custa") || msg.includes("preço") || msg.includes("preco") || msg.includes("valor") || msg.includes("orçamento") || msg.includes("orcamento") || msg.includes("quanto")) {
         return "Nossos valores na **Dott System** são transparentes e se adaptam ao tamanho do seu negócio:\n\n" +
-               "🚀 **Landing Page:** R$ 890 (Entrega em 5 a 7 dias)\n" +
-               "🌐 **Site Institucional:** R$ 2.490 (Entrega em 10 a 15 dias - até 6 páginas)\n" +
-               "⭐ **Site Institucional Premium:** R$ 4.990 (Entrega em 20 a 25 dias - até 12 páginas)\n" +
-               "🛒 **E-commerce Completo:** R$ 7.990 (Entrega em 30 a 40 dias)\n" +
-               "📱 **Aplicativo Mobile MVP:** R$ 6.990 (Entrega em 20 a 30 dias)\n\n" +
-               "💳 *Pagamento via Pix, Boleto ou Cartão em até 12x.*\n\n" +
-               "Você pode simular e montar os requisitos do seu projeto agora em [Criar Proposta](/criar-projeto)!";
+            "🚀 **Landing Page:** R$ 890 (Entrega em 5 a 7 dias)\n" +
+            "🌐 **Site Institucional:** R$ 2.490 (Entrega em 10 a 15 dias - até 6 páginas)\n" +
+            "⭐ **Site Institucional Premium:** R$ 4.990 (Entrega em 20 a 25 dias - até 12 páginas)\n" +
+            "🛒 **E-commerce Completo:** R$ 7.990 (Entrega em 30 a 40 dias)\n" +
+            "📱 **Aplicativo Mobile MVP:** R$ 6.990 (Entrega em 20 a 30 dias)\n\n" +
+            "💳 *Pagamento via Pix, Boleto ou Cartão em até 12x.*\n\n" +
+            "Você pode simular e montar os requisitos do seu projeto agora em [Criar Proposta](/criar-projeto)!";
     }
 
     // 3. Etapas / Prazos / Como funciona
     if (msg.includes("funciona") || msg.includes("prazo") || msg.includes("etapa") || msg.includes("demora") || msg.includes("passo")) {
         return "Nosso processo de desenvolvimento é 100% transparente e estruturado em 5 etapas principais:\n\n" +
-               "1️⃣ **Briefing:** Entendemos suas ideias e requisitos.\n" +
-               "2️⃣ **Design no Figma:** Criamos a prévia visual interativa do seu site.\n" +
-               "3️⃣ **Programação:** Desenvolvemos o sistema com tecnologia moderna e rápida.\n" +
-               "4️⃣ **Testes & Homologação:** Você aprova todas as telas e ajustes.\n" +
-               "5️⃣ **Lançamento:** Publicamos seu site na nuvem com suporte contínuo.\n\n" +
-               "Gostaria de dar o primeiro passo? Monte seu briefing em [Criar Proposta de Projeto](/criar-projeto)!";
+            "1️⃣ **Briefing:** Entendemos suas ideias e requisitos.\n" +
+            "2️⃣ **Design no Figma:** Criamos a prévia visual interativa do seu site.\n" +
+            "3️⃣ **Programação:** Desenvolvemos o sistema com tecnologia moderna e rápida.\n" +
+            "4️⃣ **Testes & Homologação:** Você aprova todas as telas e ajustes.\n" +
+            "5️⃣ **Lançamento:** Publicamos seu site na nuvem com suporte contínuo.\n\n" +
+            "Gostaria de dar o primeiro passo? Monte seu briefing em [Criar Proposta de Projeto](/criar-projeto)!";
     }
 
     // 4. Se a resposta da IA for aceitável mas sem CTA, adicionar o CTA
@@ -857,8 +879,8 @@ function processarRespostaInteligenteDott(mensagemUsuario, respostaBase) {
 
     // 5. Fallback padrão proativo
     return "Olá! Sou o assistente virtual da **Dott System**. Desenvolvemos sites institucionais, landing pages, e-commerces e aplicativos sob medida para o seu negócio.\n\n" +
-           "Como posso ajudar você hoje? Você pode me perguntar sobre **preços**, **prazos** ou me contar qual é o seu ramo (ex: Petshop, Restaurante, Advocacia, Loja Virtual)!\n\n" +
-           "Se preferir, você também pode montar a proposta do seu projeto diretamente em [Criar Proposta](/criar-projeto).";
+        "Como posso ajudar você hoje? Você pode me perguntar sobre **preços**, **prazos** ou me contar qual é o seu ramo (ex: Petshop, Restaurante, Advocacia, Loja Virtual)!\n\n" +
+        "Se preferir, você também pode montar a proposta do seu projeto diretamente em [Criar Proposta](/criar-projeto).";
 }
 
 // ==========================================
@@ -866,28 +888,66 @@ function processarRespostaInteligenteDott(mensagemUsuario, respostaBase) {
 // ==========================================
 
 app.post("/api/chat-mestre", async (req, res) => {
-    const { mensagemUsuario, sessionId } = req.body;
+    const { mensagemUsuario, sessionId, historico } = req.body;
 
     if (!mensagemUsuario) {
         return res.status(400).json({ message: "A mensagem não pode estar vazia." });
     }
 
     try {
+        const msgLower = (mensagemUsuario || "").toLowerCase();
+
+        // 0. VERIFICAÇÃO PRIORITÁRIA ABSOLUTA: Pedido de Atendente Humano / WhatsApp / Zap / Pessoa
+        const termosHumano = ["pessoa", "humano", "atendente", "whatsapp", "whats", "zap", "wats", "vendedor", "suporte", "falar", "faar", "alguem", "alguém", "contato", "atendimento", "conversar", "ligar"];
+        const querHumano = termosHumano.some(t => msgLower.includes(t));
+
+        if (querHumano) {
+            return res.status(200).json({
+                resposta: "💬 **Certamente! Nosso atendimento humano está à disposição.**\n\n" +
+                    "⏰ **Horário de Atendimento:**\n" +
+                    "• **Segunda a Sexta:** 09h às 18h\n" +
+                    "• **Sábado:** 09h às 13h\n\n" +
+                    "Clique no link abaixo para conversar diretamente com nossa equipe no WhatsApp:\n\n" +
+                    "👉 [Falar no WhatsApp (81 98840-4020)](https://api.whatsapp.com/send?phone=5581988404020&text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20gostaria%20de%20falar%20com%20um%20atendente)"
+            });
+        }
+
         const idSessao = sessionId || "session_mestre_default";
         let respostaDaIa = "";
 
-        try {
-            respostaDaIa = await enviarMensagemParaLangflowMestre(mensagemUsuario, idSessao);
-        } catch (errLangflow) {
-            console.log("Langflow Mestre das Alianças aguardando URL personalizada:", errLangflow.message);
+        // 1. Tentar Groq Llama 3 (Nuvem Gratuita)
+        if (process.env.GROQ_API_KEY) {
+            try {
+                respostaDaIa = await enviarMensagemParaGroqLlama(mensagemUsuario, historico);
+            } catch (errGroq) {
+                console.log("Groq Llama 3 indisponível:", errGroq.message);
+            }
         }
 
-        // Filtro de Segurança Reforçado: Bloqueia vazamentos do Langflow (negócio, parceria, boné, matriz, tecido, almofada, etc.)
+        // 2. Se Groq falhou, tentar Gemini API
+        if ((!respostaDaIa || respostaDaIa.length < 10) && (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY)) {
+            try {
+                respostaDaIa = await enviarMensagemParaGeminiMestre(mensagemUsuario, historico);
+            } catch (errGemini) {
+                console.log("Gemini API Mestre indisponível:", errGemini.message);
+            }
+        }
+
+        // 3. Tentar Langflow
+        if (!respostaDaIa || respostaDaIa.length < 10) {
+            try {
+                respostaDaIa = await enviarMensagemParaLangflowMestre(mensagemUsuario, idSessao);
+            } catch (errLangflow) {
+                console.log("Langflow Mestre offline/indisponível:", errLangflow.message);
+            }
+        }
+
+        // Filtro de Segurança Reforçado
         const respLower = (respostaDaIa || "").toLowerCase();
         const termosProibidos = ["negócio", "negocio", "parceria", "boné", "bone", "peito", "costas", "dst", "pes", "tecido", "matriz", "bordad", "bastidor", "agulha", "encomenda", "encomendas", "almofada", "almofadas", "desenho", "aplicação pretendida", "[inserir localização]"];
         const temInvasaoEstranha = termosProibidos.some(t => respLower.includes(t));
 
-        if (!respostaDaIa || respostaDaIa.length < 15 || temInvasaoEstranha) {
+        if (!respostaDaIa || respostaDaIa.length < 10 || temInvasaoEstranha) {
             respostaDaIa = processarRespostaInteligenteMestre(mensagemUsuario);
         }
 
@@ -898,10 +958,192 @@ app.post("/api/chat-mestre", async (req, res) => {
     }
 });
 
+async function enviarMensagemParaOllamaLlama(mensagemUsuario, historico = []) {
+    const ollamaUrl = process.env.OLLAMA_URL || "http://localhost:11434/api/chat";
+    const model = process.env.OLLAMA_MODEL || "llama3";
+
+    const systemInstruction = `Você é o Consultor Oficial Especialista em Joias da Mestre das Alianças (Recife - PE).
+Sua missão é atender os clientes com cordialidade e precisão sobre alianças de Prata 950 (Compromisso/Namoro, a partir de R$ 199) e Ouro 18k / 10k (Noivado/Casamento, a partir de R$ 1.290).
+Gravação interna de nomes e datas é 100% gratuita. Lojas físicas em Recife: Boa Viagem e Santo Antônio.
+NUNCA invente materiais que não vendemos (como prata sterling, prata oxidada ou ouro 24k).`;
+
+    const messages = [
+        { role: "system", content: systemInstruction }
+    ];
+
+    if (Array.isArray(historico)) {
+        historico.forEach(item => {
+            if (item.texto && typeof item.texto === 'string') {
+                messages.push({
+                    role: item.autor === 'usuario' ? 'user' : 'assistant',
+                    content: item.texto
+                });
+            }
+        });
+    }
+
+    messages.push({ role: "user", content: mensagemUsuario });
+
+    const payload = {
+        model: model,
+        messages: messages,
+        stream: false
+    };
+
+    const response = await fetch(ollamaUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error(`Status ${response.status}`);
+
+    const data = await response.json();
+    return data.message?.content || null;
+}
+
+async function enviarMensagemParaGroqLlama(mensagemUsuario, historico = []) {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) return null;
+
+    const url = "https://api.groq.com/openai/v1/chat/completions";
+    const model = process.env.GROQ_MODEL || "llama3-8b-8192";
+
+    const systemInstruction = `Você é o Consultor Oficial Especialista da Mestre das Alianças (Recife - PE).
+Sua missão é dar suporte rápido, responder dúvidas de clientes e recomendar nossos produtos e coleções do site.
+
+--- REGRAS DE OURO ---
+1. FOCO EXCLUSIVO NA LOJA (RECUSAR PERGUNTAS GERAIS): NUNCA responda perguntas de conhecimentos gerais, geografia (ex: capital do Brasil), política, futebol, receitas ou curiosidades fora do tema. Se o cliente fizer uma pergunta aleatória, responda educadamente: "Sou o assistente virtual exclusivo da **Mestre das Alianças**! Meu foco é tirar dúvidas sobre nossas alianças de Prata 950 e Ouro 18k/10k. Como posso te ajudar a escolher a joia perfeita hoje?"
+2. RESPOSTAS DIRETAS: Seja objetivo e atencioso (máximo 2 a 3 parágrafos). NUNCA faça questionários compridos.
+3. NUNCA FAÇA SIMULAÇÃO DE PEDIDO FAKE: NUNCA peça endereço, rua, número, CEP, bairro ou dados pessoais do cliente.
+4. LINKS DE CATÁLOGO:
+   • Coleção de Prata 950 (Namoro/Compromisso, a partir de R$ 199): [Ver Coleção Prata 950](https://mestredasaliancas.com.br/prata.html)
+   • Coleção de Ouro 18k / 10k (Noivado/Casamento, a partir de R$ 1.290): [Ver Coleção de Ouro](https://mestredasaliancas.com.br/ouro.html)
+5. DIREIONAMENTO PARA O WHATSAPP DE VENDAS:
+   • Quando o cliente quiser fechar pedido, encomendar modelo ou falar com atendente, envie IMEDIATAMENTE o link direto do WhatsApp Humano:
+     👉 [Atendimento no WhatsApp (81 98840-4020)](https://api.whatsapp.com/send?phone=5581988404020&text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20gostaria%20de%20atendimento)
+
+--- DADOS IMPORTANTES DE SUPORTE ---
+• Gravação Interna de nomes e datas é 100% GRATUITA.
+• Garantia Eterna na autenticidade do metal (Prata 950, Ouro 18k e Ouro 10k).
+• Acabamento Anatômico super confortável.
+• Lojas Físicas em Recife: Boa Viagem (Av. Conselheiro Aguiar, 2333) e Santo Antônio (Rua Camboa Do Carmo, 123).`;
+
+    const messages = [
+        { role: "system", content: systemInstruction }
+    ];
+
+    if (Array.isArray(historico)) {
+        historico.forEach(item => {
+            if (item.texto && typeof item.texto === 'string') {
+                messages.push({
+                    role: item.autor === 'usuario' ? 'user' : 'assistant',
+                    content: item.texto
+                });
+            }
+        });
+    }
+
+    messages.push({ role: "user", content: mensagemUsuario });
+
+    const payload = {
+        model: model,
+        messages: messages,
+        temperature: 0.7
+    };
+
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error(`Status ${response.status}`);
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || null;
+}
+
+async function enviarMensagemParaGeminiMestre(mensagemUsuario, historico = []) {
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    if (!apiKey) return null;
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+    const systemInstruction = `Você é o Consultor Oficial Especialista em Joias da Mestre das Alianças (Recife - PE).
+Sua missão é dar suporte rápido, tirar dúvidas sobre nossas alianças de Prata 950 e Ouro 18k/10k, e direcionar o cliente para o nosso catálogo no site ou para o WhatsApp de Atendimento.
+
+--- REGRAS DE ATENDIMENTO E VENDAS ---
+1. RESPOSTAS DIRETAS E OBJETIVAS: Responda a dúvida do cliente em poucas frases (máximo 2 a 3 parágrafos) de forma acolhedora, elegante e clara.
+2. NUNCA FAÇA QUESTIONÁRIOS DE COMPRA FAKE:
+   • NUNCA peça endereço, rua, número, CEP, bairro, fonte de letra ou dados pessoais para simular formulário de compra ou entrega.
+   • Faça no máximo 1 pergunta por resposta.
+3. MOSTRE OS LINKS DO CATÁLOGO DO SITE:
+   • Coleção de Prata 950 (Namoro/Compromisso, a partir de R$ 199): [Ver Coleção Prata 950](https://mestredasaliancas.com.br/prata.html)
+   • Coleção de Ouro 18k / 10k (Noivado/Casamento, a partir de R$ 1.290): [Ver Coleção de Ouro](https://mestredasaliancas.com.br/ouro.html)
+4. DIREIONAMENTO PARA O WHATSAPP:
+   • Quando o cliente quiser encomendar, fechar um pedido, passar nomes/datas para gravação ou pedir orçamento sob medida, forneça IMEDIATAMENTE o link direto do WhatsApp Humano:
+     👉 [Atendimento VIP no WhatsApp](https://api.whatsapp.com/send?phone=5581999999999&text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20gostaria%20de%20atendimento%20para%20escolher%20minhas%20alian%C3%A7as)
+
+--- INFORMAÇÕES DE SUPORTE ---
+• Gravação Interna de nomes e datas: 100% GRATUITA em todas as alianças.
+• Garantia: Eterna na autenticidade do metal (Prata 950, Ouro 18k e Ouro 10k).
+• Conforto: Acabamento Anatômico curva interna para uso diário.
+• Lojas Físicas em Recife - PE:
+  - Boa Viagem: Av. Conselheiro Aguiar, 2333 (Empresarial João Roma, Loja 11 - Térreo)
+  - Santo Antônio: Rua Camboa Do Carmo, 123 (Próximo à Igreja do Carmo)`;
+
+    const contents = [
+        {
+            role: "user",
+            parts: [{ text: systemInstruction }]
+        },
+        {
+            role: "model",
+            parts: [{ text: "Entendido! Sou o assistente especialista da Mestre das Alianças. Seguirei todas as regras e manterei o contexto da conversa." }]
+        }
+    ];
+
+    // Adiciona o histórico recente de conversas para manter o contexto
+    if (Array.isArray(historico)) {
+        historico.forEach(item => {
+            if (item.texto && typeof item.texto === 'string') {
+                contents.push({
+                    role: item.autor === 'usuario' ? 'user' : 'model',
+                    parts: [{ text: item.texto }]
+                });
+            }
+        });
+    }
+
+    // Adiciona a mensagem atual
+    contents.push({
+        role: "user",
+        parts: [{ text: mensagemUsuario }]
+    });
+
+    const payload = { contents };
+
+    const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error(`Status ${response.status}`);
+
+    const data = await response.json();
+    const texto = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    return texto || null;
+}
+
 async function enviarMensagemParaLangflowMestre(mensagemUsuario, sessionId) {
     // Endpoint fornecido pelo usuário no Langflow para a Mestre das Alianças
     const url = process.env.LANGFLOW_MESTRE_URL || "http://localhost:7860/api/v1/run/89e42945-3b76-4636-a80d-604703a98be8";
-    
+
     const payload = {
         output_type: "chat",
         input_type: "chat",
@@ -921,7 +1163,7 @@ async function enviarMensagemParaLangflowMestre(mensagemUsuario, sessionId) {
     });
 
     if (!response.ok) throw new Error(`Status ${response.status}`);
-    
+
     const data = await response.json();
     return data.outputs[0].outputs[0].results.message.text;
 }
@@ -929,90 +1171,86 @@ async function enviarMensagemParaLangflowMestre(mensagemUsuario, sessionId) {
 function processarRespostaInteligenteMestre(mensagemUsuario) {
     const msg = mensagemUsuario.toLowerCase();
 
-    // Tratamento para "desisto"
+    // Tratamento para "desisto" ou "calma"
     if (msg.includes("desisto") || msg.includes("calma")) {
         return "Não desista! Estou aqui 100% focado em ajudar você a escolher a aliança perfeita da **Mestre das Alianças**! 💍\n\nNossos principais modelos:\n• **Ouro 18k (750)** — Ouro Nobre com garantia eterna\n• **Ouro 10k (416)** — Ouro legítimo com excelente custo-benefício\n• **Prata 950** — Prata de lei de alto brilho\n\nTodas acompanham **gravação grátis** e **garantia eterna**!\n\nQual modelo ou ocasião você gostaria de ver agora?";
     }
 
-    // 1. Erros de digitação (alinça, alinca), gírias/termos afetivos (veio, véio, veia, véia, nego, nega, amor, namorado) e compra
-    const temAlianca = msg.includes("aliança") || msg.includes("alianca") || msg.includes("alinça") || msg.includes("alinca") || msg.includes("anel") || msg.includes("joia");
-    const temIntencaoOuAfeto = msg.includes("quero") || msg.includes("gostaria") || msg.includes("preciso") || msg.includes("procur") || msg.includes("comprar") || msg.includes("ver") || msg.includes("tipo") || msg.includes("modelo") || msg.includes("categoria") || msg.includes("nego") || msg.includes("nega") || msg.includes("veio") || msg.includes("véio") || msg.includes("veia") || msg.includes("véia") || msg.includes("amor") || msg.includes("namorad") || msg.includes("noiv") || msg.includes("marido") || msg.includes("esposa") || msg.includes("mozão") || msg.includes("mozao");
-
-    if (temAlianca || temIntencaoOuAfeto) {
-        let saudacaoAfetiva = "✨ **Que escolha especial!** Temos as alianças perfeitas para eternizar esse momento com quem você ama:\n\n";
-        if (msg.includes("nego") || msg.includes("nega") || msg.includes("veio") || msg.includes("véio") || msg.includes("veia") || msg.includes("véia") || msg.includes("amor") || msg.includes("namorad") || msg.includes("noiv") || msg.includes("marido") || msg.includes("esposa") || msg.includes("mozão") || msg.includes("mozao")) {
-            saudacaoAfetiva = "❤️ **Que carinho especial!** Temos os modelos perfeitos para surpreender o seu amor:\n\n";
-        }
-
-        return saudacaoAfetiva +
-               "💍 **Modelos & Ocasiões:**\n" +
-               "• **Casamento & Noivado:** Alianças nobres em Ouro 18k (750) ou Ouro 10k (416).\n" +
-               "• **Compromisso & Namoro:** Alianças em Prata 950 legítima com brilho espelhado.\n" +
-               "• **Anéis Especiais:** Anéis Solitários, Noivado e Formatura.\n\n" +
-               "🎨 **Estilos:** Clássica (lisa), Trabalhada (frisos/chanfros), Simples ou Detalhada (com pedras/brilhantes).\n" +
-               "✨ **Cortesia Especial:** **Gravação dos nomes e data grátis** no interior de todas as peças e opção de **Acabamento Anatômico** (extremo conforto no dedo)!\n\n" +
-               "Qual material você tem em mente? (Prata 950, Ouro 10k ou Ouro 18k?)";
+    // 1. ESPECÍFICO: Prata 950 (verificar PRIMEIRO se o usuário pediu prata)
+    if (msg.includes("prata") || msg.includes("950")) {
+        return "💎 **Excelente escolha! Nossas Alianças de Prata 950 são perfeitas para Compromisso e Namoro!**\n\n" +
+            "Nossas peças são confeccionadas em **Prata 950 Legítima** de máxima pureza, com brilho espelhado e altíssima durabilidade.\n\n" +
+            "✨ **Diferenciais incluídos:**\n" +
+            "• ✏️ **Gravação Grátis** de nomes e datas no interior de todas as peças\n" +
+            "• 🛡️ **Garantia Eterna** do metal\n" +
+            "• ☁️ Opção de **Acabamento Anatômico** (extremo conforto no uso diário)\n" +
+            "• 💰 Pares de Prata a partir de **R$ 199,00**!\n\n" +
+            "🎨 **Estilos:** Clássicas (lisas), Trabalhadas (frisos e chanfros), Simples ou Detalhadas (com zircônias).\n\n" +
+            "🔗 Acesse nossa coleção de Prata completa em: [Ver Alianças de Prata 950](https://mestredasaliancas.com.br/prata.html)\n\n" +
+            "Gostaria de ver algum modelo em específico (Clássica, Trabalhada ou com Pedras)?";
     }
 
-    // 2. Endereços e Lojas Físicas
+    // 2. ESPECÍFICO: Ouro 18k e 10k (verificar se o usuário pediu ouro)
+    if (msg.includes("ouro") || msg.includes("18k") || msg.includes("10k")) {
+        return "✨ **As Alianças em Ouro são perfeitas para Noivado e Casamento!**\n\n" +
+            "• **Ouro 18k (750):** Ouro Nobre certificado com brilho impecável e garantia eterna do metal para a vida toda.\n" +
+            "• **Ouro 10k (416):** Ouro legítimo de altíssima resistência com excelente custo-benefício.\n\n" +
+            "✨ **Diferenciais inclusos:**\n" +
+            "• ✏️ **Gravação Grátis** de nomes e datas\n" +
+            "• 🛡️ **Garantia Eterna** do metal\n" +
+            "• ☁️ **Acabamento Anatômico** confort super ajustável no dedo\n\n" +
+            "🔗 Veja nossa coleção completa de Ouro em: [Ver Alianças de Ouro](https://mestredasaliancas.com.br/ouro.html)\n\n" +
+            "Você prefere Ouro 18k ou Ouro 10k?";
+    }
+
+    // 3. ESPECÍFICO: Endereços e Lojas Físicas
     if (msg.includes("onde") || msg.includes("endereço") || msg.includes("endereco") || msg.includes("loja") || msg.includes("fica") || msg.includes("recife") || msg.includes("boa viagem") || msg.includes("santo antônio") || msg.includes("santo antonio")) {
         return "📍 **Nossas Lojas Físicas em Recife - PE:**\n\n" +
-               "🏢 **Unidade 1 - Boa Viagem:**\n" +
-               "Av. Conselheiro Aguiar, 2333 - Boa Viagem (Empresarial João Roma, Loja 11 - Térreo)\n" +
-               "⏰ *Horários:* Seg a Sex: 09:00 às 17:00 | Sáb: 09:00 às 13:00\n\n" +
-               "🏢 **Unidade 2 - Santo Antônio:**\n" +
-               "Rua Camboa Do Carmo, 123 - Santo Antônio (Próx. à Igreja do Carmo, em frente à Beto Ótica)\n" +
-               "⏰ *Horários:* Seg a Sex: 09:00 às 17:00 | Sáb: 09:00 às 14:00\n\n" +
-               "🇧🇷 *Enviamos com frete seguro para todo o Brasil!* Ou acesse nosso catálogo em https://mestredasaliancas.com.br/index.html";
+            "🏢 **Unidade 1 - Boa Viagem:**\n" +
+            "Av. Conselheiro Aguiar, 2333 - Boa Viagem (Empresarial João Roma, Loja 11 - Térreo)\n" +
+            "⏰ *Horários:* Seg a Sex: 09:00 às 17:00 | Sáb: 09:00 às 13:00\n\n" +
+            "🏢 **Unidade 2 - Santo Antônio:**\n" +
+            "Rua Camboa Do Carmo, 123 - Santo Antônio (Próx. à Igreja do Carmo, em frente à Beto Ótica)\n" +
+            "⏰ *Horários:* Seg a Sex: 09:00 às 17:00 | Sáb: 09:00 às 14:00\n\n" +
+            "🇧🇷 *Enviamos com frete seguro para todo o Brasil!* Ou acesse nosso catálogo online em [Mestre das Alianças](https://mestredasaliancas.com.br/index.html)";
     }
 
-    // 3. Horários de Funcionamento
+    // 4. ESPECÍFICO: Horários de Funcionamento
     if (msg.includes("horario") || msg.includes("horário") || msg.includes("abre") || msg.includes("fecha") || msg.includes("sábado") || msg.includes("sabado")) {
         return "⏰ **Horários de Atendimento:**\n\n" +
-               "• **Boa Viagem:** Seg a Sex das 09:00 às 17:00 | Sábados das 09:00 às 13:00\n" +
-               "• **Santo Antônio:** Seg a Sex das 09:00 às 17:00 | Sábados das 09:00 às 14:00\n" +
-               "• *Domingos e Feriados:* Fechado (Atendimento online 24h pelo site https://mestredasaliancas.com.br/index.html)";
+            "• **Boa Viagem:** Seg a Sex das 09:00 às 17:00 | Sábados das 09:00 às 13:00\n" +
+            "• **Santo Antônio:** Seg a Sex das 09:00 às 17:00 | Sábados das 09:00 às 14:00\n" +
+            "• *Domingos e Feriados:* Fechado (Atendimento online 24h em nosso site)\n\n" +
+            "Acesse [Mestre das Alianças](https://mestredasaliancas.com.br/index.html)";
     }
 
-    // 4. Ouro 18k / Ouro 10k
-    if (msg.includes("ouro") || msg.includes("18k") || msg.includes("10k")) {
-        return "✨ **Alianças em Ouro (18k e 10k):**\n\n" +
-               "• **Ouro 18k (750):** Ouro Nobre certificado com brilho impecável e garantia eterna do metal.\n" +
-               "• **Ouro 10k (416):** Ouro legítimo com excelente custo-benefício e altíssima durabilidade.\n\n" +
-               "Disponíveis nos estilos *Clássico*, *Trabalhado*, *Simples* ou *Detalhado*, com **Gravação Grátis** e **Acabamento Anatômico**!\n\n" +
-               "🔗 Veja nosso catálogo de Ouro em: https://mestredasaliancas.com.br/ouro.html";
+    // 5. ESPECÍFICO: Valores e Preços
+    if (msg.includes("preço") || msg.includes("quanto") || msg.includes("valor") || msg.includes("custo")) {
+        return "✨ Na **Mestre das Alianças** temos opções para todos os orçamentos:\n\n" +
+            "• 💎 **Par de Alianças em Prata 950:** A partir de **R$ 199,00**\n" +
+            "• ✨ **Par de Alianças em Ouro:** A partir de **R$ 1.290,00**\n\n" +
+            "💳 Parcelamos em até 12x sem juros no cartão ou com desconto especial no Pix!\n\n" +
+            "• Catálogo de Prata: [Ver Prata 950](https://mestredasaliancas.com.br/prata.html)\n" +
+            "• Catálogo de Ouro: [Ver Ouro 18k / 10k](https://mestredasaliancas.com.br/ouro.html)";
     }
 
-    // 5. Prata 950
-    if (msg.includes("prata") || msg.includes("950")) {
-        return "💎 **Alianças em Prata 950:**\n\n" +
-               "Nossas Alianças de Prata 950 são feitas na mais pura liga de prata de lei, com brilho espelhado, gravação interna grátis e certificado de garantia permanente!\n\n" +
-               "🔗 Veja os modelos de Prata em: https://mestredasaliancas.com.br/prata.html";
-    }
-
-    // 6. Gravação e Garantia
+    // 6. ESPECÍFICO: Gravação, Garantia e Anatômico
     if (msg.includes("grava") || msg.includes("nome") || msg.includes("garantia") || msg.includes("anatômico") || msg.includes("anatomico")) {
-        return "✨ **Diferenciais Mestre das Alianças:**\n" +
-               "• ✏️ **Gravação Grátis:** Nomes e datas gravados gratuitamente no interior de todas as alianças.\n" +
-               "• 🛡️ **Garantia Eterna:** Certificado de garantia permanente sobre a autenticidade do metal (Ouro 18k, 10k e Prata 950).\n" +
-               "• ☁️ **Acabamento Anatômico:** Formato curvo interno para máximo conforto diário no dedo.\n" +
-               "• 🇧🇷 **Envio Seguro:** Entregas para todo o Brasil!\n\n" +
-               "Acesse: https://mestredasaliancas.com.br/index.html";
-    }
-
-    // 7. Valores
-    if (msg.includes("preço") || msg.includes("quanto") || msg.includes("valor")) {
-        return "✨ Na **Mestre das Alianças** temos par de alianças de Prata 950 a partir de **R$ 199** e par de Ouro a partir de **R$ 1.290** em até 12x sem juros no cartão ou com desconto no Pix!\n\n" +
-               "• Modelos de Prata: https://mestredasaliancas.com.br/prata.html\n" +
-               "• Modelos de Ouro: https://mestredasaliancas.com.br/ouro.html";
+        return "✨ **Diferenciais Exclusivos Mestre das Alianças:**\n\n" +
+            "• ✏️ **Gravação Grátis:** Nomes e datas gravados internamente sem custo adicional em todas as alianças.\n" +
+            "Trabalhamos com **Ouro 18k (750)** e **Ouro 10k (416)** com acabamento anatômico e gravação interna gratuita.\n\n" +
+            "🔗 Acesse nosso catálogo completo de ouro em: [Ver Coleção de Ouro](https://mestredasaliancas.com.br/ouro.html)\n\n" +
+            "💬 Para encomendar ou falar com nosso consultor no WhatsApp:\n" +
+            "👉 [Falar no WhatsApp (81 98840-4020)](https://api.whatsapp.com/send?phone=5581988404020&text=Ol%C3%A1!%20Gostaria%20de%20ver%20alian%C3%A7as%20de%20ouro)";
     }
 
     return "👑 **Mestre das Alianças - Atendimento ao Cliente**\n\n" +
-           "Estou aqui para tirar qualquer dúvida sobre nossas alianças de **Ouro 18k, 10k e Prata 950** (Compromisso, Noivado e Casamento)!\n\n" +
-           "• 💎 **Sessão Prata 950:** https://mestredasaliancas.com.br/prata.html\n" +
-           "• ✨ **Sessão Ouro 18k / 10k:** https://mestredasaliancas.com.br/ouro.html\n" +
-           "• 📍 **Lojas Físicas:** Boa Viagem e Santo Antônio (Recife - PE)\n\n" +
-           "Como posso ajudar a esclarecer sua dúvida agora?";
+        "Estou aqui para ajudar a escolher suas alianças de **Ouro 18k, 10k e Prata 950**!\n\n" +
+        "⏰ **Horários:** Seg a Sex (09h às 18h) | Sáb (09h às 13h)\n" +
+        "• 💎 **Coleção Prata 950:** [Ver Prata 950](https://mestredasaliancas.com.br/prata.html)\n" +
+        "• ✨ **Coleção Ouro:** [Ver Ouro](https://mestredasaliancas.com.br/ouro.html)\n" +
+        "• 📍 **Lojas Físicas:** Boa Viagem e Santo Antônio (Recife - PE)\n" +
+        "• 💬 **WhatsApp de Vendas:** [Falar com Consultor](https://api.whatsapp.com/send?phone=5581999999999&text=Ol%C3%A1!%20Gostaria%20de%20atendimento)";
 }
 
 app.listen(3000, () => console.log("Servidor rodando na porta 3000"));

@@ -7,7 +7,7 @@ export default function ChatbotMestre() {
   const [mensagens, setMensagens] = useState([
     { 
       autor: 'ia', 
-      texto: '👑 Olá! Seja bem-vindo à **Mestre das Alianças**.\n\nSou seu assistente especialista em **Alianças de Ouro 18k e Prata 950**. Como posso ajudar a escolher a aliança perfeita hoje?' 
+      texto: 'Olá! Seja bem-vindo à **Mestre das Alianças**.\n\nSou seu assistente especialista em **Alianças de Ouro 18k e Prata 950**. Como posso ajudar a escolher a aliança perfeita hoje?' 
     }
   ]);
   const [input, setInput] = useState('');
@@ -63,14 +63,20 @@ export default function ChatbotMestre() {
           
           {/* Cabeçalho Dourado Premium */}
           <div className="bg-gradient-to-r from-amber-700 via-amber-600 to-amber-800 text-white p-4 flex justify-between items-center shadow-md">
-            <div className="flex items-center gap-3">
+            <div 
+              className="flex items-center gap-3 cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={() => window.open('https://mestredasaliancas.com.br', '_blank', 'noopener,noreferrer')}
+              title="Acessar mestredasaliancas.com.br"
+            >
               <img 
                 src={mestreLogo} 
                 alt="Mestre das Alianças" 
                 className="w-10 h-10 rounded-full object-cover border-2 border-amber-300 shadow-sm" 
               />
               <div>
-                <h3 className="font-bold text-base leading-none">Mestre das Alianças</h3>
+                <h3 className="font-bold text-base leading-none">
+                  Mestre das Alianças
+                </h3>
                 <span className="text-amber-200 text-xs flex items-center gap-1 mt-1">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
                   Especialista em Joias
@@ -122,7 +128,7 @@ export default function ChatbotMestre() {
             
             {carregando && (
               <div className="bg-white border border-amber-200 text-amber-600 self-start rounded-xl rounded-tl-none p-3 text-sm flex gap-1 items-center shadow-xs">
-                <span className="animate-bounce">👑</span>
+                <span className="animate-bounce">●</span>
                 <span className="animate-bounce delay-100">●</span>
                 <span className="animate-bounce delay-200">●</span>
               </div>

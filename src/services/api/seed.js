@@ -50,6 +50,18 @@ async function main() {
   });
   console.log("Cliente Mestre das Alianças criado: contato@mestredasaliancas.com.br / password: dott123");
 
+  // 2c. Cria usuário Cliente - Meu Boné Bordado
+  const clienteMeuBone = await prisma.user.create({
+    data: {
+      nome: "Meu Boné Bordado",
+      email: "contato@meubonebordado.com.br",
+      senha: hashSenha,
+      role: "cliente",
+      emailVerificado: true
+    }
+  });
+  console.log("Cliente Meu Boné Bordado criado: contato@meubonebordado.com.br / password: dott123");
+
   // 3. Cria Projeto Francisco
   const projeto = await prisma.project.create({
     data: {
@@ -80,6 +92,52 @@ async function main() {
       designAprovado: true,
       dataEntrega: new Date(),
       clienteId: clienteMestre.id,
+      responsavelId: admin.id
+    }
+  });
+
+  // 2d. Cria usuário Cliente - Dott. Odontologia
+  const clienteOdonto = await prisma.user.create({
+    data: {
+      nome: "Dott. Odontologia",
+      email: "contato@dottodontologia.com.br",
+      senha: hashSenha,
+      role: "cliente",
+      emailVerificado: true
+    }
+  });
+  console.log("Cliente Dott. Odontologia criado: contato@dottodontologia.com.br / password: dott123");
+
+  // 3c. Cria Projeto Meu Boné Bordado
+  const projetoMeuBone = await prisma.project.create({
+    data: {
+      nome: "Meu Boné Bordado - E-Commerce & Customizador 3D/2D",
+      mensagem: "Plataforma e-commerce e simulador de bordados em tempo real. Permite criação de bonés personalizados com orçamento automático de matrizes de pontos e editor interativo.",
+      etapa_atual: "ENTREGA",
+      figma_link: "https://figma.com/file/meu-bone-bordado-figma",
+      trello_link: "https://trello.com/b/meu-bone-bordado-trello",
+      contrato_link: "https://zapsign.com.br/sign/meu-bone-bordado-contrato",
+      contrato_assinado: true,
+      designAprovado: true,
+      dataEntrega: new Date(),
+      clienteId: clienteMeuBone.id,
+      responsavelId: admin.id
+    }
+  });
+
+  // 3d. Cria Projeto Dott. Odontologia
+  const projetoOdonto = await prisma.project.create({
+    data: {
+      nome: "Dott. Odontologia - Portal & Agendamento Online",
+      mensagem: "Plataforma institucional e sistema de agendamento de consultas para clínica odontológica de alta especialização com integração ao WhatsApp.",
+      etapa_atual: "ENTREGA",
+      figma_link: "https://figma.com/file/dott-odontologia-figma",
+      trello_link: "https://trello.com/b/dott-odontologia-trello",
+      contrato_link: "https://zapsign.com.br/sign/dott-odontologia-contrato",
+      contrato_assinado: true,
+      designAprovado: true,
+      dataEntrega: new Date(),
+      clienteId: clienteOdonto.id,
       responsavelId: admin.id
     }
   });

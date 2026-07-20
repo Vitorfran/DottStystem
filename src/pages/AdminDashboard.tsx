@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -38,12 +39,12 @@ interface Projeto {
 
 const ETAPAS = ["BRIEFING", "DESIGN", "DESENVOLVIMENTO", "TESTES", "ENTREGA"];
 
-const ETAPA_META: Record<string, { cor: string; bg: string; border: string; glow: string; text: string; icon: string }> = {
-  BRIEFING:        { cor: "from-slate-600 to-slate-700",   bg: "bg-slate-950/60",   border: "border-slate-800",   glow: "shadow-slate-500/5",   text: "text-slate-400",   icon: "📋" },
-  DESIGN:          { cor: "from-violet-600 to-indigo-600",  bg: "bg-violet-950/40",  border: "border-violet-800/40", glow: "shadow-violet-500/10",  text: "text-violet-400",  icon: "🎨" },
-  DESENVOLVIMENTO: { cor: "from-blue-600 to-cyan-600",    bg: "bg-blue-950/40",    border: "border-blue-800/40",   glow: "shadow-blue-500/10",    text: "text-blue-400",    icon: "💻" },
-  TESTES:          { cor: "from-amber-600 to-orange-600",   bg: "bg-amber-950/40",   border: "border-amber-800/40",  glow: "shadow-amber-500/10",   text: "text-amber-400",   icon: "🧪" },
-  ENTREGA:         { cor: "from-emerald-600 to-teal-600", bg: "bg-emerald-950/40", border: "border-emerald-800/40",glow: "shadow-emerald-500/10", text: "text-emerald-400", icon: "🚀" },
+const ETAPA_META: Record<string, { cor: string; bg: string; border: string; text: string; icon: string }> = {
+  BRIEFING:        { cor: "from-slate-600 to-slate-800",   bg: "bg-slate-50",     border: "border-slate-200",   text: "text-slate-700 font-extrabold",   icon: "📋" },
+  DESIGN:          { cor: "from-violet-600 to-indigo-600",  bg: "bg-violet-50",    border: "border-violet-200",  text: "text-violet-700 font-extrabold",  icon: "🎨" },
+  DESENVOLVIMENTO: { cor: "from-blue-600 to-cyan-600",    bg: "bg-blue-50",      border: "border-blue-200",    text: "text-blue-700 font-extrabold",    icon: "💻" },
+  TESTES:          { cor: "from-amber-600 to-orange-600",   bg: "bg-amber-50",     border: "border-amber-200",   text: "text-amber-700 font-extrabold",   icon: "🧪" },
+  ENTREGA:         { cor: "from-emerald-600 to-teal-600", bg: "bg-emerald-50",   border: "border-emerald-200", text: "text-emerald-700 font-extrabold", icon: "🚀" },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -54,12 +55,12 @@ function iniciais(nome: string) {
 
 function corAvatar(nome: string) {
   const cores = [
-    "from-violet-600 to-indigo-600",
+    "from-indigo-600 to-violet-600",
     "from-blue-600 to-cyan-600",
     "from-emerald-600 to-teal-600",
-    "from-rose-600 to-pink-600",
+    "from-rose-500 to-pink-600",
     "from-amber-500 to-orange-600",
-    "from-fuchsia-600 to-violet-600",
+    "from-purple-600 to-indigo-600",
   ];
   const i = nome.charCodeAt(0) % cores.length;
   return cores[i];
@@ -231,68 +232,68 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#080c14] flex items-center justify-center">
+      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center">
         <div className="flex flex-col items-center gap-5">
           <div className="relative w-16 h-16">
-            <div className="absolute inset-0 rounded-full border-4 border-indigo-500/20" />
-            <div className="absolute inset-0 rounded-full border-4 border-t-indigo-500 animate-spin" />
+            <div className="absolute inset-0 rounded-full border-4 border-indigo-200" />
+            <div className="absolute inset-0 rounded-full border-4 border-t-indigo-600 animate-spin" />
           </div>
-          <p className="text-slate-400 font-semibold text-sm tracking-wide">Carregando painel...</p>
+          <p className="text-slate-600 font-bold text-sm tracking-wide">Carregando Painel Dott System...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#080c14] text-slate-100 font-sans flex flex-col">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans flex flex-col" style={{ background: "radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.07) 0%, rgba(248, 250, 252, 1) 55%, rgba(241, 245, 249, 1) 100%)" }}>
 
       {/* ── HEADER ──────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 border-b border-white/5 bg-[#080c14]/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl shadow-xs">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white font-black text-sm shadow-lg shadow-indigo-900/50">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white font-black text-base shadow-md shadow-indigo-500/20">
               D
             </div>
             <div className="leading-none">
-              <span className="font-extrabold text-white">Dott</span>
-              <span className="font-extrabold text-indigo-400">.</span>
-              <span className="font-extrabold text-white">System</span>
-              <p className="text-[10px] text-slate-500 font-medium tracking-widest uppercase mt-0.5">Painel Interno</p>
+              <span className="font-black text-slate-900 text-base">Dott</span>
+              <span className="font-black text-indigo-600 text-base">.</span>
+              <span className="font-black text-slate-900 text-base">System</span>
+              <p className="text-[10px] text-slate-400 font-black tracking-widest uppercase mt-0.5">Painel Interno</p>
             </div>
           </div>
 
-          <div className="hidden md:flex items-center gap-4 bg-white/5 p-1 rounded-full border border-white/10 px-3 py-1.5">
-            <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold">
-              <span className="w-2 h-2 rounded-full bg-indigo-500" />
-              Briefings: <strong className="text-white">{briefings.length}</strong>
+          <div className="hidden md:flex items-center gap-4 bg-slate-100/80 p-1.5 rounded-full border border-slate-200 px-4">
+            <div className="flex items-center gap-2 text-xs font-bold text-indigo-700 bg-white px-3 py-1 rounded-full shadow-xs border border-indigo-100">
+              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+              Briefings: <strong className="text-slate-900">{briefings.length}</strong>
             </div>
-            <span className="text-slate-700">|</span>
-            <div className="flex items-center gap-1.5 text-xs text-slate-400 font-semibold">
+            <span className="text-slate-300 font-light">|</span>
+            <div className="flex items-center gap-2 text-xs font-bold text-blue-700 bg-white px-3 py-1 rounded-full shadow-xs border border-blue-100">
               <span className="w-2 h-2 rounded-full bg-blue-500" />
-              Projetos: <strong className="text-white">{projetos.length}</strong>
+              Projetos: <strong className="text-slate-900">{projetos.length}</strong>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className={`flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-full border ${
+            <div className={`flex items-center gap-2 text-xs font-extrabold px-3.5 py-1.5 rounded-full border shadow-xs ${
               meusProjetosAtivos >= 2
-                ? "bg-red-950/60 border-red-800/50 text-red-300"
-                : "bg-emerald-950/60 border-emerald-800/50 text-emerald-300"
+                ? "bg-rose-50 border-rose-200 text-rose-700"
+                : "bg-emerald-50 border-emerald-200 text-emerald-700"
             }`}>
-              <div className={`w-1.5 h-1.5 rounded-full ${meusProjetosAtivos >= 2 ? "bg-red-400 animate-pulse" : "bg-emerald-400"}`} />
+              <div className={`w-2 h-2 rounded-full ${meusProjetosAtivos >= 2 ? "bg-rose-500 animate-ping" : "bg-emerald-500"}`} />
               {meusProjetosAtivos}/2 ativos
             </div>
             {meuNome && (
-              <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-                <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${corAvatar(meuNome)} flex items-center justify-center text-[10px] font-black text-white`}>
+              <div className="flex items-center gap-2.5 bg-white px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs">
+                <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${corAvatar(meuNome)} flex items-center justify-center text-[10px] font-black text-white shadow-xs`}>
                   {meuNome[0]}
                 </div>
-                <span className="text-sm font-semibold text-slate-200">{meuNome}</span>
+                <span className="text-sm font-bold text-slate-800">{meuNome}</span>
               </div>
             )}
             <button
               onClick={() => { localStorage.removeItem("token"); navigate("/login"); }}
-              className="text-xs text-slate-500 hover:text-slate-300 transition px-3 py-1.5 rounded-lg hover:bg-white/5"
+              className="text-xs font-bold text-slate-500 hover:text-slate-900 transition px-3.5 py-2 rounded-xl hover:bg-slate-100"
             >
               Sair
             </button>
@@ -301,16 +302,23 @@ export default function AdminDashboard() {
       </header>
 
       {/* ── TOAST ───────────────────────────────────────────────────────────── */}
-      {msgSucesso && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white font-bold px-6 py-3 rounded-2xl shadow-2xl text-sm flex items-center gap-2 animate-bounce">
-          {msgSucesso}
-        </div>
-      )}
+      <AnimatePresence>
+        {msgSucesso && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white font-extrabold px-6 py-3.5 rounded-2xl shadow-2xl text-sm flex items-center gap-2"
+          >
+            {msgSucesso}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-6 py-8 space-y-8">
 
         {/* ── ABAS DE NAVEGAÇÃO ────────────────────────────────────────────── */}
-        <div className="flex gap-1.5 bg-white/5 p-1.5 rounded-2xl border border-white/10 w-fit">
+        <div className="flex gap-2 bg-slate-200/60 p-1.5 rounded-2xl border border-slate-300/60 w-fit backdrop-blur-md">
           {(["briefings", "todos", "meus"] as const).map(aba => {
             const meta = {
               briefings: { icon: "📥", label: "Briefings Recebidos", count: briefings.length },
@@ -321,16 +329,16 @@ export default function AdminDashboard() {
               <button
                 key={aba}
                 onClick={() => setAbaAtiva(aba)}
-                className={`flex items-center gap-2.5 px-5 py-3 rounded-xl font-bold text-sm transition-all duration-200 ${
+                className={`flex items-center gap-2.5 px-5 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 ${
                   abaAtiva === aba
-                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-950/50"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    ? "bg-white text-indigo-600 shadow-md shadow-indigo-500/10 border border-slate-200/80"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
                 }`}
               >
                 <span className="text-base leading-none">{meta.icon}</span>
                 <span>{meta.label}</span>
-                <span className={`px-2 py-0.5 rounded-md text-[10px] font-black min-w-[20px] text-center ${
-                  abaAtiva === aba ? "bg-white/20 text-white" : "bg-white/10 text-slate-400"
+                <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-black min-w-[22px] text-center ${
+                  abaAtiva === aba ? "bg-indigo-50 text-indigo-700" : "bg-slate-300/60 text-slate-600"
                 }`}>
                   {meta.count}
                 </span>
@@ -345,14 +353,14 @@ export default function AdminDashboard() {
         {abaAtiva === "briefings" && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-extrabold text-white tracking-tight">Solicitações de Briefing</h2>
-              <p className="text-slate-400 text-sm mt-1">Refine, defina a proposta comercial e aprove para iniciar o onboarding do cliente.</p>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tight">Solicitações de Briefing</h2>
+              <p className="text-slate-500 text-sm mt-1 font-medium">Análise os pedidos enviados pelos clientes, estruture os requisitos e configure a proposta comercial.</p>
             </div>
 
             {briefings.length === 0 ? (
-              <EmptyState emoji="📭" titulo="Nenhuma solicitação nova" descricao="Quando clientes enviarem propostas pelo site, elas aparecerão aqui para revisão." />
+              <EmptyState emoji="📭" titulo="Nenhuma solicitação pendente" descricao="Quando clientes enviarem propostas pelo site, elas aparecerão aqui para revisão comercial." />
             ) : (
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                 {briefings.map(b => (
                   <BriefingCard
                     key={b.id}
@@ -376,10 +384,10 @@ export default function AdminDashboard() {
           <div className="space-y-6">
             <div className="flex justify-between items-end flex-wrap gap-4">
               <div>
-                <h2 className="text-2xl font-extrabold text-white tracking-tight">Projetos Ativos</h2>
-                <p className="text-slate-400 text-sm mt-1">{projetos.length} projetos registrados no sistema</p>
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Projetos Ativos</h2>
+                <p className="text-slate-500 text-sm mt-1 font-medium">{projetos.length} projetos registrados e em acompanhamento</p>
               </div>
-              <div className="flex items-center gap-3 text-xs font-semibold">
+              <div className="flex items-center gap-3 text-xs font-bold">
                 <Pill cor="amber" texto={`${projetosSemResponsavel.length} sem responsável`} />
                 <Pill cor="emerald" texto={`${projetos.length - projetosSemResponsavel.length} com responsável`} />
               </div>
@@ -419,27 +427,27 @@ export default function AdminDashboard() {
           <div className="space-y-6">
             <div className="flex justify-between items-end flex-wrap gap-4">
               <div>
-                <h2 className="text-2xl font-extrabold text-white tracking-tight">Meus Projetos Assumidos</h2>
-                <p className="text-slate-400 text-sm mt-1">Projetos sob sua responsabilidade direta</p>
+                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Meus Projetos Assumidos</h2>
+                <p className="text-slate-500 text-sm mt-1 font-medium">Projetos sob sua responsabilidade direta de desenvolvimento e gestão</p>
               </div>
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border ${
+              <div className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black border ${
                 meusProjetosAtivos >= 2
-                  ? "bg-red-950/50 border-red-800/50 text-red-300"
-                  : "bg-emerald-950/50 border-emerald-800/50 text-emerald-300"
+                  ? "bg-rose-50 border-rose-200 text-rose-700"
+                  : "bg-emerald-50 border-emerald-200 text-emerald-700"
               }`}>
-                {meusProjetosAtivos >= 2 ? "⛔ Limite atingido" : "✅ Carga disponível"} — {meusProjetosAtivos}/2 ativos
+                {meusProjetosAtivos >= 2 ? "⛔ Limite Atingido" : "✅ Capacidade Disponível"} — {meusProjetosAtivos}/2 ativos
               </div>
             </div>
 
             {meusProjetosAtivos >= 2 && (
-              <div className="bg-red-950/40 border border-red-800/40 rounded-2xl p-4 text-sm text-red-300 font-medium flex items-start gap-3">
-                <span className="text-lg">⚠️</span>
-                Você atingiu o limite de 2 projetos ativos. Finalize ou transfira um projeto para assumir novos.
+              <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 text-sm text-rose-800 font-bold flex items-center gap-3">
+                <span className="text-xl">⚠️</span>
+                Você atingiu a capacidade limite de 2 projetos ativos simultâneos. Finalize a etapa de um projeto para assumir novos.
               </div>
             )}
 
             {meusProjetos.length === 0 ? (
-              <EmptyState emoji="🙋" titulo="Nenhum projeto assumido" descricao='Vá na aba "Todos os Projetos" e clique em "Assumir" para vincular um projeto à sua conta.' />
+              <EmptyState emoji="🙋" titulo="Nenhum projeto assumido" descricao='Navegue até a aba "Todos os Projetos" e clique em "Assumir Projeto" para vincular o acompanhamento à sua conta.' />
             ) : (
               <div className="grid grid-cols-1 gap-6">
                 {meusProjetos.map(p => (
@@ -469,16 +477,16 @@ export default function AdminDashboard() {
 
       {/* ── MODAL DE APROVAÇÃO / PROPOSTA ────────────────────────────────── */}
       {modalAprovacaoAberto && briefingSelecionado && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex justify-center items-center z-50 p-4">
-          <div className="bg-[#0f172a] border border-white/10 w-full max-w-5xl p-8 rounded-3xl shadow-2xl flex flex-col space-y-6 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b border-white/10 pb-4">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex justify-center items-center z-50 p-4">
+          <div className="bg-white border border-slate-200 w-full max-w-5xl p-8 md:p-10 rounded-[2.5rem] shadow-2xl flex flex-col space-y-6 max-h-[92vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-slate-200 pb-4">
               <div>
-                <h3 className="font-extrabold text-white text-xl tracking-tight">Analisar Briefing e Configurar Proposta</h3>
-                <p className="text-slate-400 text-xs mt-1">Defina os termos para o cliente: <strong>{briefingSelecionado.nome}</strong></p>
+                <h3 className="font-black text-slate-900 text-2xl tracking-tight">Configurar Proposta Comercial</h3>
+                <p className="text-slate-500 text-sm mt-0.5 font-medium">Defina os valores e links para o cliente: <strong className="text-slate-800">{briefingSelecionado.nome}</strong></p>
               </div>
               <button 
                 onClick={() => setModalAprovacaoAberto(false)} 
-                className="text-slate-400 hover:text-white text-2xl font-bold leading-none p-2 rounded-lg hover:bg-white/5 transition"
+                className="text-slate-400 hover:text-slate-800 text-2xl font-bold leading-none p-2 rounded-xl hover:bg-slate-100 transition"
               >
                 &times;
               </button>
@@ -488,27 +496,27 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
               
               {/* Coluna Esquerda: Informações do Briefing */}
-              <div className="space-y-4 bg-black/20 border border-white/5 p-6 rounded-2xl">
-                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 border-b border-white/5 pb-2">1. Detalhes da Solicitação</h4>
+              <div className="space-y-4 bg-slate-50 border border-slate-200/80 p-6 rounded-2xl">
+                <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 border-b border-slate-200 pb-2">1. Detalhes da Solicitação</h4>
                 
-                <div className="space-y-3 text-xs">
+                <div className="space-y-3.5 text-xs">
                   <div>
-                    <span className="text-slate-500 font-semibold block">Nome do Cliente:</span>
-                    <span className="text-slate-200 font-bold">{briefingSelecionado.nome}</span>
+                    <span className="text-slate-400 font-bold uppercase tracking-wider block text-[10px]">Nome do Cliente:</span>
+                    <span className="text-slate-900 font-black text-sm">{briefingSelecionado.nome}</span>
                   </div>
                   <div>
-                    <span className="text-slate-500 font-semibold block">E-mail de Contato:</span>
-                    <a href={`mailto:${briefingSelecionado.email}`} className="text-indigo-400 font-semibold hover:text-indigo-300 transition">{briefingSelecionado.email}</a>
+                    <span className="text-slate-400 font-bold uppercase tracking-wider block text-[10px]">E-mail de Contato:</span>
+                    <a href={`mailto:${briefingSelecionado.email}`} className="text-indigo-600 font-bold text-sm hover:underline">{briefingSelecionado.email}</a>
                   </div>
                   <div>
-                    <span className="text-slate-500 font-semibold block">Data de Envio:</span>
-                    <span className="text-slate-300 font-bold">{formatarData(briefingSelecionado.criadoEm)}</span>
+                    <span className="text-slate-400 font-bold uppercase tracking-wider block text-[10px]">Data de Recebimento:</span>
+                    <span className="text-slate-700 font-bold">{formatarData(briefingSelecionado.criadoEm)}</span>
                   </div>
                   <div>
-                    <span className="text-slate-500 font-semibold block">Ideia / Escopo:</span>
-                    <pre className="mt-2 bg-black/40 border border-white/5 rounded-xl p-4 text-[11px] text-slate-300 whitespace-pre-wrap leading-relaxed max-h-60 overflow-y-auto scrollbar-thin font-sans">
+                    <span className="text-slate-400 font-bold uppercase tracking-wider block text-[10px] mb-1.5">Ideia / Escopo Solicitado:</span>
+                    <div className="bg-white border border-slate-200 rounded-xl p-4 text-xs text-slate-700 font-mono font-medium whitespace-pre-wrap leading-relaxed max-h-60 overflow-y-auto scrollbar-thin shadow-xs">
                       {briefingSelecionado.mensagem}
-                    </pre>
+                    </div>
                   </div>
 
                   {/* Fotos enviadas pelo cliente */}
@@ -520,10 +528,10 @@ export default function AdminDashboard() {
                         if (Array.isArray(fotosList) && fotosList.length > 0) {
                           return (
                             <div className="space-y-2 pt-2">
-                              <span className="text-slate-500 font-semibold block">Fotos Anexadas ({fotosList.length}):</span>
-                              <div className="flex gap-2 flex-wrap">
+                              <span className="text-slate-400 font-bold uppercase tracking-wider block text-[10px]">Anexos / Referências ({fotosList.length}):</span>
+                              <div className="flex gap-2.5 flex-wrap">
                                 {fotosList.map((foto: string, idx: number) => (
-                                  <a key={idx} href={foto} target="_blank" rel="noopener noreferrer" className="relative w-14 h-14 rounded-xl overflow-hidden border border-white/5 hover:border-indigo-500/40 transition bg-black/40">
+                                  <a key={idx} href={foto} target="_blank" rel="noopener noreferrer" className="relative w-14 h-14 rounded-xl overflow-hidden border border-slate-200 hover:border-indigo-500 transition shadow-xs">
                                     <img src={foto} alt={`Ref ${idx}`} className="w-full h-full object-cover" />
                                   </a>
                                 ))}
@@ -539,69 +547,69 @@ export default function AdminDashboard() {
               </div>
 
               {/* Coluna Direita: Formulário de Configuração */}
-              <div className="space-y-4">
-                <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 border-b border-white/5 pb-2">2. Configurações Comerciais</h4>
+              <div className="space-y-5">
+                <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 border-b border-slate-200 pb-2">2. Proposta Financeira & Links</h4>
                 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1.5">Nome do Projeto</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1.5">Nome Oficial do Projeto</label>
                     <input
                       type="text"
                       value={formNomeProjeto}
                       onChange={e => setFormNomeProjeto(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                      className="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-3.5 rounded-xl text-sm font-bold focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition"
                       placeholder="Ex: E-commerce da Dott"
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                       <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1.5">Valor Total (R$)</label>
                       <input
                         type="number"
                         value={formValorTotal}
                         onChange={e => handleValorTotalChange(parseFloat(e.target.value) || 0)}
-                        className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-3 rounded-xl text-sm font-extrabold focus:bg-white focus:border-indigo-500 outline-none transition"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1.5">Valor Entrada (R$)</label>
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1.5">Entrada (50%)</label>
                       <input
                         type="number"
                         value={formValorEntrada}
                         onChange={e => setFormValorEntrada(parseFloat(e.target.value) || 0)}
-                        className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-3 rounded-xl text-sm font-extrabold focus:bg-white focus:border-indigo-500 outline-none transition"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1.5">Valor Final (R$)</label>
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1.5">Final (50%)</label>
                       <input
                         type="number"
                         value={formValorFinal}
                         onChange={e => setFormValorFinal(parseFloat(e.target.value) || 0)}
-                        className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-3 rounded-xl text-sm font-extrabold focus:bg-white focus:border-indigo-500 outline-none transition"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1.5">Link do Trello do Projeto</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1.5">Link do Trello (Opcional)</label>
                     <input
                       type="url"
                       value={formTrelloLink}
                       onChange={e => setFormTrelloLink(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                      className="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-3 rounded-xl text-sm font-semibold focus:bg-white focus:border-indigo-500 outline-none transition"
                       placeholder="https://trello.com/b/..."
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1.5">Link do Contrato Digital</label>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1.5">Link do Contrato Digital (ZapSign)</label>
                     <input
                       type="url"
                       value={formContratoLink}
                       onChange={e => setFormContratoLink(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 text-white px-4 py-3 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                      className="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-3 rounded-xl text-sm font-semibold focus:bg-white focus:border-indigo-500 outline-none transition"
                       placeholder="https://zapsign.com.br/..."
                     />
                   </div>
@@ -610,24 +618,24 @@ export default function AdminDashboard() {
 
             </div>
 
-            <div className="flex justify-end gap-3 border-t border-white/10 pt-5">
+            <div className="flex justify-end gap-3 border-t border-slate-200 pt-5">
               <button
                 onClick={() => setModalAprovacaoAberto(false)}
-                className="px-6 py-3 rounded-xl text-sm font-bold text-slate-400 hover:text-white transition border border-white/10 hover:bg-white/5"
+                className="px-6 py-3.5 rounded-xl text-sm font-bold text-slate-600 hover:text-slate-900 transition border border-slate-200 hover:bg-slate-100"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleConfirmarAprovacao}
                 disabled={aprovando[briefingSelecionado.id]}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-8 py-3 rounded-xl text-sm transition disabled:opacity-60 shadow-lg shadow-indigo-950/30 active:scale-[0.98] flex items-center gap-2"
+                className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-extrabold px-8 py-3.5 rounded-xl text-sm transition disabled:opacity-60 shadow-lg shadow-indigo-600/25 active:scale-95 flex items-center gap-2"
               >
                 {aprovando[briefingSelecionado.id] ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                     Criando projeto...
                   </>
-                ) : "Confirmar e Enviar Proposta"}
+                ) : "🚀 Confirmar e Enviar Proposta"}
               </button>
             </div>
           </div>
@@ -641,18 +649,18 @@ export default function AdminDashboard() {
 
 function Pill({ cor, texto }: { cor: string; texto: string }) {
   const cores: Record<string, string> = {
-    amber: "bg-amber-950/40 border-amber-800/40 text-amber-400",
-    emerald: "bg-emerald-950/40 border-emerald-800/40 text-emerald-400",
+    amber: "bg-amber-50 border-amber-200 text-amber-800",
+    emerald: "bg-emerald-50 border-emerald-200 text-emerald-800",
   };
-  return <span className={`px-3 py-1 rounded-full border text-xs font-bold ${cores[cor]}`}>{texto}</span>;
+  return <span className={`px-3 py-1 rounded-full border text-xs font-black ${cores[cor]}`}>{texto}</span>;
 }
 
 function EmptyState({ emoji, titulo, descricao }: { emoji: string; titulo: string; descricao: string }) {
   return (
-    <div className="border border-dashed border-white/10 rounded-2xl p-16 text-center space-y-3">
+    <div className="bg-white border-2 border-dashed border-slate-200 rounded-[2.5rem] p-16 text-center space-y-3 shadow-xs">
       <div className="text-5xl">{emoji}</div>
-      <h3 className="font-bold text-slate-300 text-lg">{titulo}</h3>
-      <p className="text-slate-500 text-sm max-w-sm mx-auto">{descricao}</p>
+      <h3 className="font-black text-slate-900 text-xl">{titulo}</h3>
+      <p className="text-slate-500 text-sm font-medium max-w-md mx-auto leading-relaxed">{descricao}</p>
     </div>
   );
 }
@@ -679,43 +687,43 @@ function BriefingCard({
   const nomeProjeto = linhaProjeto ? linhaProjeto.replace("PROJETO:", "").trim() : null;
 
   return (
-    <div className="bg-white/[0.02] border border-white/10 rounded-3xl overflow-hidden hover:border-indigo-500/40 hover:bg-white/[0.03] transition-all duration-300 flex flex-col h-full shadow-lg">
-      <div className="p-6 flex items-start gap-4 flex-1">
-        <div className={`shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br ${corAvatar(b.nome)} flex items-center justify-center text-white font-black text-base shadow-lg`}>
+    <div className="bg-white/90 border border-slate-200/90 rounded-[2.5rem] overflow-hidden hover:shadow-[0_20px_45px_rgba(79,70,229,0.08)] transition-all duration-300 flex flex-col h-full shadow-[0_10px_30px_rgba(0,0,0,0.03)] backdrop-blur-xl">
+      <div className="p-7 flex items-start gap-4 flex-1">
+        <div className={`shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br ${corAvatar(b.nome)} flex items-center justify-center text-white font-black text-lg shadow-md`}>
           {iniciais(b.nome)}
         </div>
 
         <div className="flex-1 min-w-0 space-y-2">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h3 className="font-extrabold text-white text-lg tracking-tight leading-snug">{b.nome}</h3>
-              <a href={`mailto:${b.email}`} className="text-indigo-400 text-sm hover:text-indigo-300 transition mt-0.5 block font-medium">
+              <h3 className="font-black text-slate-900 text-xl tracking-tight leading-snug">{b.nome}</h3>
+              <a href={`mailto:${b.email}`} className="text-indigo-600 text-sm hover:underline transition mt-0.5 block font-bold">
                 {b.email}
               </a>
             </div>
-            <span className="text-[10px] text-slate-500 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10 font-bold">
+            <span className="text-xs text-slate-500 bg-slate-100 px-3.5 py-1.5 rounded-full font-bold shrink-0">
               {formatarData(b.criadoEm)}
             </span>
           </div>
 
           {nomeProjeto && (
-            <div className="inline-flex items-center gap-1.5 bg-indigo-950/40 border border-indigo-900/30 rounded-lg px-2.5 py-1 text-xs">
-              <span className="text-indigo-400 font-extrabold uppercase tracking-wider text-[9px]">SOLICITAÇÃO:</span>
-              <span className="text-slate-300 font-bold">{nomeProjeto}</span>
+            <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 rounded-full px-3.5 py-1 text-xs">
+              <span className="text-indigo-700 font-black uppercase tracking-wider text-[9px]">SOLICITAÇÃO:</span>
+              <span className="text-slate-800 font-extrabold">{nomeProjeto}</span>
             </div>
           )}
         </div>
       </div>
 
-      <div className="px-6 pb-2">
+      <div className="px-7 pb-2">
         <div
-          className={`relative bg-black/40 rounded-2xl border border-white/5 text-sm text-slate-300 leading-relaxed overflow-hidden transition-all duration-500 ${
-            expandido ? "max-h-[500px]" : "max-h-24"
+          className={`relative bg-slate-50/90 rounded-2xl border border-slate-200/80 text-sm text-slate-700 leading-relaxed overflow-hidden transition-all duration-500 ${
+            expandido ? "max-h-[600px]" : "max-h-28"
           }`}
         >
-          <pre className="p-4 whitespace-pre-wrap break-words font-sans text-xs text-slate-400">{b.mensagem}</pre>
+          <pre className="p-5 whitespace-pre-wrap break-words font-sans text-xs text-slate-700 font-medium leading-relaxed">{b.mensagem}</pre>
           {!expandido && (
-            <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-[#0b0f19] to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-slate-50 to-transparent pointer-events-none" />
           )}
         </div>
         {expandido && (() => {
@@ -725,9 +733,9 @@ function BriefingCard({
               const fotosList = JSON.parse(fotosStr);
               if (Array.isArray(fotosList) && fotosList.length > 0) {
                 return (
-                  <div className="mt-3 flex gap-2 flex-wrap">
+                  <div className="mt-3 flex gap-2.5 flex-wrap">
                     {fotosList.map((foto: string, idx: number) => (
-                      <a key={idx} href={foto} target="_blank" rel="noopener noreferrer" className="relative w-12 h-12 rounded-xl overflow-hidden border border-white/5 hover:border-indigo-500/40 transition bg-black/40">
+                      <a key={idx} href={foto} target="_blank" rel="noopener noreferrer" className="relative w-14 h-14 rounded-xl overflow-hidden border border-slate-200 hover:border-indigo-500 transition shadow-xs">
                         <img src={foto} alt={`Ref ${idx}`} className="w-full h-full object-cover" />
                       </a>
                     ))}
@@ -740,22 +748,22 @@ function BriefingCard({
         })()}
         <button
           onClick={onToggleExpand}
-          className="mt-2 text-xs text-slate-500 hover:text-slate-300 transition flex items-center gap-1 font-bold"
+          className="mt-3 text-xs text-indigo-600 hover:text-indigo-800 transition flex items-center gap-1 font-black uppercase tracking-wider"
         >
           {expandido ? "▲ Recolher briefing" : "▼ Ver briefing completo"}
         </button>
       </div>
 
-      <div className="p-6 pt-4">
+      <div className="p-7 pt-4">
         <button
           onClick={onAprovar}
           disabled={aprovando}
-          className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-3.5 rounded-2xl text-sm transition-all duration-200 active:scale-[0.98] shadow-lg shadow-indigo-950/20"
+          className="w-full bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-extrabold py-4 rounded-2xl text-sm transition-all duration-200 active:scale-[0.98] shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/35 flex items-center justify-center gap-2"
         >
           {aprovando ? (
             <span className="flex items-center justify-center gap-2">
               <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-              Configurando...
+              Configurando proposta...
             </span>
           ) : (
             <span className="flex items-center justify-center gap-2">
@@ -801,40 +809,40 @@ function ProjetoCard({ projeto: p, meuId, modoAdmin, editando, salvando, assumin
   const totalPendente = p.payments.filter(pay => pay.status === "PENDING").reduce((acc, pay) => acc + parseFloat(pay.value), 0);
 
   return (
-    <div className={`rounded-3xl border overflow-hidden transition-all duration-300 shadow-xl ${
+    <div className={`rounded-[2.5rem] border overflow-hidden transition-all duration-300 shadow-md ${
       ehMeu
-        ? "border-indigo-500/30 bg-gradient-to-br from-indigo-950/20 to-slate-900/40"
-        : "border-white/5 bg-white/[0.01] hover:border-white/10"
+        ? "border-indigo-300 bg-white"
+        : "border-slate-200/90 bg-white hover:border-slate-300"
     }`}>
       {/* Barra de progresso */}
-      <div className="h-1 bg-white/5">
+      <div className="h-1.5 bg-slate-100">
         <div
-          className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 transition-all duration-700"
+          className="h-full bg-gradient-to-r from-indigo-600 to-violet-600 transition-all duration-700"
           style={{ width: `${progresso}%` }}
         />
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-8 space-y-6">
         {/* Linha Principal do Projeto */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${corAvatar(p.cliente.nome)} flex items-center justify-center text-white font-black text-base shadow-lg`}>
+            <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${corAvatar(p.cliente.nome)} flex items-center justify-center text-white font-black text-lg shadow-md`}>
               {iniciais(p.cliente.nome)}
             </div>
             <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-extrabold text-white text-lg tracking-tight leading-none">{p.nome}</h3>
-                <span className={`text-[10px] font-black px-2.5 py-1 rounded-full border bg-gradient-to-r ${meta.cor} text-white border-white/10 shadow-sm`}>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h3 className="font-black text-slate-900 text-xl tracking-tight leading-none">{p.nome}</h3>
+                <span className={`text-[10px] font-black px-3 py-1 rounded-full border ${meta.bg} ${meta.text} ${meta.border} shadow-xs`}>
                   {meta.icon} {p.etapa_atual}
                 </span>
                 {ehMeu && (
-                  <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-900/30">
+                  <span className="text-[10px] font-black px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
                     👤 Meu
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-400 mt-1.5 font-medium">
-                Cliente: <strong className="text-slate-300 font-bold">{p.cliente.nome}</strong> · <a href={`mailto:${p.cliente.email}`} className="text-slate-500 hover:text-slate-300 font-semibold">{p.cliente.email}</a>
+              <p className="text-xs text-slate-500 mt-2 font-medium">
+                Cliente: <strong className="text-slate-800 font-bold">{p.cliente.nome}</strong> · <a href={`mailto:${p.cliente.email}`} className="text-indigo-600 hover:underline font-bold">{p.cliente.email}</a>
               </p>
             </div>
           </div>
@@ -844,14 +852,14 @@ function ProjetoCard({ projeto: p, meuId, modoAdmin, editando, salvando, assumin
               <div className="flex gap-2">
                 <button
                   onClick={onCancelarEdicao}
-                  className="bg-white/5 hover:bg-white/10 text-slate-300 font-bold px-4 py-2.5 rounded-xl text-xs transition border border-white/5"
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs transition border border-slate-200"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={onSalvar}
                   disabled={salvando}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition disabled:opacity-50 flex items-center gap-1.5 shadow-lg shadow-indigo-950/30"
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold px-5 py-2.5 rounded-xl text-xs transition disabled:opacity-50 flex items-center gap-1.5 shadow-md shadow-indigo-600/20"
                 >
                   {salvando ? <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /> : null}
                   💾 Salvar
@@ -863,7 +871,7 @@ function ProjetoCard({ projeto: p, meuId, modoAdmin, editando, salvando, assumin
                   <button
                     onClick={onAssumir}
                     disabled={assumindo}
-                    className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition active:scale-95 disabled:opacity-60 flex items-center gap-1.5 shadow-lg shadow-indigo-950/20"
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold px-5 py-2.5 rounded-xl text-xs transition active:scale-95 disabled:opacity-60 flex items-center gap-1.5 shadow-md shadow-indigo-600/20"
                   >
                     {assumindo ? <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" /> : "🙋"}
                     Assumir Projeto
@@ -871,9 +879,9 @@ function ProjetoCard({ projeto: p, meuId, modoAdmin, editando, salvando, assumin
                 )}
                 <button
                   onClick={onIniciarEdicao}
-                  className="bg-white/5 hover:bg-white/10 text-slate-300 font-bold px-4 py-2.5 rounded-xl text-xs transition active:scale-95 border border-white/10 flex items-center gap-1.5"
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl text-xs transition active:scale-95 border border-slate-200 flex items-center gap-1.5"
                 >
-                  <svg className="w-3.5 h-3.5 fill-current text-slate-400" viewBox="0 0 20 20">
+                  <svg className="w-3.5 h-3.5 fill-current text-slate-500" viewBox="0 0 20 20">
                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                   </svg>
                   Editar
@@ -887,10 +895,10 @@ function ProjetoCard({ projeto: p, meuId, modoAdmin, editando, salvando, assumin
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           
           {/* Card Prazo */}
-          <div className="bg-black/30 border border-white/5 p-4 rounded-2xl space-y-1">
-            <span className="text-[9px] font-black tracking-widest text-slate-500 uppercase">Prazo de Entrega</span>
-            <div className="text-slate-200 text-sm font-bold flex items-center gap-1.5">
-              <svg className="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <div className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl space-y-1">
+            <span className="text-[10px] font-black tracking-widest text-slate-400 uppercase">Prazo de Entrega</span>
+            <div className="text-slate-800 text-sm font-extrabold flex items-center gap-1.5">
+              <svg className="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
               {formatarData(p.dataEntrega)}
@@ -898,19 +906,19 @@ function ProjetoCard({ projeto: p, meuId, modoAdmin, editando, salvando, assumin
           </div>
 
           {/* Card Contrato */}
-          <div className="bg-black/30 border border-white/5 p-4 rounded-2xl space-y-1">
-            <span className="text-[9px] font-black tracking-widest text-slate-500 uppercase">Contrato Digital</span>
-            <div className={`text-sm font-bold flex items-center gap-1.5 ${p.contrato_assinado ? "text-emerald-400" : "text-amber-400"}`}>
+          <div className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl space-y-1">
+            <span className="text-[10px] font-black tracking-widest text-slate-400 uppercase">Contrato Digital</span>
+            <div className={`text-sm font-extrabold flex items-center gap-1.5 ${p.contrato_assinado ? "text-emerald-700" : "text-amber-700"}`}>
               {p.contrato_assinado ? (
                 <>
-                  <svg className="w-3.5 h-3.5 stroke-current" fill="none" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <svg className="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Assinado
                 </>
               ) : (
                 <>
-                  <svg className="w-3.5 h-3.5 stroke-current animate-pulse" fill="none" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <svg className="w-4 h-4 stroke-current animate-pulse" fill="none" viewBox="0 0 24 24" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Pendente
@@ -920,35 +928,35 @@ function ProjetoCard({ projeto: p, meuId, modoAdmin, editando, salvando, assumin
           </div>
 
           {/* Card Financeiro */}
-          <div className="bg-black/30 border border-white/5 p-4 rounded-2xl space-y-1">
-            <span className="text-[9px] font-black tracking-widest text-slate-500 uppercase">Financeiro</span>
-            <div className="text-xs font-bold text-slate-300 space-y-0.5">
-              {totalPago > 0 && <p className="text-emerald-400">💰 {formatarMoeda(String(totalPago))} recebido</p>}
-              {totalPendente > 0 && <p className="text-amber-400">⏳ {formatarMoeda(String(totalPendente))} pendente</p>}
-              {totalPago === 0 && totalPendente === 0 && <p className="text-slate-500">Sem faturas</p>}
+          <div className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl space-y-1">
+            <span className="text-[10px] font-black tracking-widest text-slate-400 uppercase">Financeiro</span>
+            <div className="text-xs font-extrabold text-slate-800 space-y-0.5">
+              {totalPago > 0 && <p className="text-emerald-700">💰 {formatarMoeda(String(totalPago))} recebido</p>}
+              {totalPendente > 0 && <p className="text-amber-700">⏳ {formatarMoeda(String(totalPendente))} pendente</p>}
+              {totalPago === 0 && totalPendente === 0 && <p className="text-slate-400">Sem faturas</p>}
             </div>
           </div>
 
           {/* Card Links */}
-          <div className="bg-black/30 border border-white/5 p-4 rounded-2xl space-y-1">
-            <span className="text-[9px] font-black tracking-widest text-slate-500 uppercase">Acessos Rápidos</span>
+          <div className="bg-slate-50 border border-slate-200/80 p-4 rounded-2xl space-y-1">
+            <span className="text-[10px] font-black tracking-widest text-slate-400 uppercase">Acessos Rápidos</span>
             <div className="flex flex-wrap gap-x-3 gap-y-1.5 text-xs font-bold pt-0.5">
               {p.figma_link ? (
-                <a href={p.figma_link} target="_blank" rel="noopener noreferrer" className="text-pink-400 hover:text-pink-300 transition flex items-center gap-1">
+                <a href={p.figma_link} target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-800 font-extrabold transition flex items-center gap-1">
                   <span>Figma</span>
                 </a>
-              ) : <span className="text-slate-600">Figma (Pendente)</span>}
+              ) : <span className="text-slate-400">Figma</span>}
               {p.trello_link ? (
-                <a href={p.trello_link} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 transition flex items-center gap-1">
+                <a href={p.trello_link} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800 font-extrabold transition flex items-center gap-1">
                   <span>Trello</span>
                 </a>
-              ) : <span className="text-slate-600">Trello (Pendente)</span>}
-              <a href={`/dashboard?projectId=${p.id}`} target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 transition flex items-center gap-1.5 border-l border-white/10 pl-3">
-                <svg className="w-3 h-3 text-emerald-400 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth={2.5}>
+              ) : <span className="text-slate-400">Trello</span>}
+              <a href={`/dashboard?projectId=${p.id}`} target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:text-emerald-900 font-extrabold transition flex items-center gap-1 border-l border-slate-300 pl-3">
+                <svg className="w-3.5 h-3.5 text-emerald-600 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
-                <span>Ver como Cliente</span>
+                <span>Cliente</span>
               </a>
             </div>
           </div>
@@ -957,8 +965,8 @@ function ProjetoCard({ projeto: p, meuId, modoAdmin, editando, salvando, assumin
 
         {/* Painel de edição inline */}
         {estaEditando && editando && (
-          <div className="border-t border-white/5 pt-5 space-y-4">
-            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">Dados do Projeto</h4>
+          <div className="border-t border-slate-200 pt-6 space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">Editar Links & Etapa do Projeto</h4>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
@@ -967,7 +975,7 @@ function ProjetoCard({ projeto: p, meuId, modoAdmin, editando, salvando, assumin
                   type="url"
                   value={editando.figma_link}
                   onChange={e => onChangeEdicao("figma_link", e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition placeholder:text-slate-600"
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-2.5 rounded-xl text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition"
                   placeholder="https://figma.com/file/..."
                 />
               </div>
@@ -977,7 +985,7 @@ function ProjetoCard({ projeto: p, meuId, modoAdmin, editando, salvando, assumin
                   type="url"
                   value={editando.trello_link}
                   onChange={e => onChangeEdicao("trello_link", e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition placeholder:text-slate-600"
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-2.5 rounded-xl text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition"
                   placeholder="https://trello.com/b/..."
                 />
               </div>
@@ -987,7 +995,7 @@ function ProjetoCard({ projeto: p, meuId, modoAdmin, editando, salvando, assumin
                   type="url"
                   value={editando.contrato_link}
                   onChange={e => onChangeEdicao("contrato_link", e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition placeholder:text-slate-600"
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-2.5 rounded-xl text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition"
                   placeholder="https://zapsign.com.br/..."
                 />
               </div>
@@ -996,10 +1004,10 @@ function ProjetoCard({ projeto: p, meuId, modoAdmin, editando, salvando, assumin
                 <select
                   value={editando.etapa_atual}
                   onChange={e => onChangeEdicao("etapa_atual", e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition cursor-pointer"
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-2.5 rounded-xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition cursor-pointer"
                 >
                   {ETAPAS.map(e => (
-                    <option key={e} value={e} className="bg-slate-900">{ETAPA_META[e]?.icon} {e.charAt(0) + e.slice(1).toLowerCase()}</option>
+                    <option key={e} value={e} className="bg-white text-slate-900">{ETAPA_META[e]?.icon} {e.charAt(0) + e.slice(1).toLowerCase()}</option>
                   ))}
                 </select>
               </div>
@@ -1009,14 +1017,14 @@ function ProjetoCard({ projeto: p, meuId, modoAdmin, editando, salvando, assumin
                   type="date"
                   value={editando.dataEntrega}
                   onChange={e => onChangeEdicao("dataEntrega", e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 text-white px-3 py-2.5 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 px-3.5 py-2.5 rounded-xl text-sm font-semibold focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition"
                 />
               </div>
             </div>
 
             {/* Briefing */}
-            <div className="bg-black/20 rounded-2xl p-4 text-xs text-slate-400 leading-relaxed max-h-24 overflow-y-auto border border-white/5">
-              <span className="text-slate-300 font-semibold block mb-1">📄 Briefing de Ideia:</span>
+            <div className="bg-slate-50 rounded-2xl p-4 text-xs text-slate-700 leading-relaxed max-h-28 overflow-y-auto border border-slate-200">
+              <span className="text-slate-900 font-bold block mb-1">📄 Briefing de Ideia:</span>
               {p.mensagem}
             </div>
           </div>
