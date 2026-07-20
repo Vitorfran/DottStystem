@@ -5,9 +5,13 @@ import Footer from "../components/Footer";
 import "../styles/home.css";
 import desktopMockup from "../assets/imagens/desktop_mockup.png";
 import mobileMockup from "../assets/imagens/mobile_mockup.png";
+import mestreDesktop from "../assets/imagens/mestre_das_aliancas_desktop.png";
+import mestreMobile from "../assets/imagens/mestre_das_aliancas_mobile.png";
+import mestreLogo from "../assets/imagens/mestre_das_aliancas_logo.jpg";
 import heroVideo from "../assets/Tire_o_get_started_o_fundo_me-ezremove.mp4";
 import { motion } from "framer-motion";
 import Chatbot from '../components/Chatbot';
+import ChatbotMestre from '../components/ChatbotMestre';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -20,6 +24,9 @@ const fadeUp = {
 
 function Home() {
   const navigate = useNavigate();
+
+  // Estado da aba de projeto em destaque
+  const [activeProjectTab, setActiveProjectTab] = useState<"mestre" | "dott">("mestre");
 
   // Dados do Formulário
   const [dadosFormulario, setDadosFormulario] = useState({
@@ -81,6 +88,7 @@ function Home() {
             animate={{ opacity: 0.55 }}
             transition={{ duration: 1.2 }}
           />
+
           <div className="hero-video-overlay" />
           <div className="hero-container">
             
@@ -149,6 +157,17 @@ function Home() {
           <div className="clients-container">
             <p className="clients-title">Clientes que confiam em nosso ecossistema</p>
             <div className="clients-grid">
+              <div 
+                className="client-logo-featured-wrapper" 
+                onClick={() => {
+                  setActiveProjectTab("mestre");
+                  const elem = document.getElementById("preview");
+                  elem?.scrollIntoView({ behavior: "smooth" });
+                }}
+                title="Mestre das Alianças — Clique para ver o projeto em destaque"
+              >
+                <img src={mestreLogo} alt="Mestre das Alianças" className="client-logo-img-large" />
+              </div>
               <div className="client-logo">🍕 Bella Restaurante</div>
               <div className="client-logo">🏋️ FitLife Academia</div>
               <div className="client-logo">🏠 ImobMax Corretora</div>
@@ -159,62 +178,101 @@ function Home() {
         </section>
 
         {/* ==========================================
-            METRICS SECTION
-            ========================================== */}
-        <section className="metrics-section">
-          <div className="metrics-container">
-            <div className="metric-item">
-              <h3 className="metric-number">120+</h3>
-              <p className="metric-label">Projetos Entregues</p>
-            </div>
-            <div className="metric-item">
-              <h3 className="metric-number">80+</h3>
-              <p className="metric-label">Clientes Ativos</p>
-            </div>
-            <div className="metric-item">
-              <h3 className="metric-number">5 Anos</h3>
-              <p className="metric-label">De Mercado</p>
-            </div>
-            <div className="metric-item">
-              <h3 className="metric-number">99.9%</h3>
-              <p className="metric-label">De Satisfação</p>
-            </div>
-          </div>
-        </section>
-
-        {/* ==========================================
             PREVIEW SECTION
             ========================================== */}
         <section className="preview-section" id="preview">
           <div className="preview-container">
             <div className="section-header">
-              <h2 className="section-title">Nossos Projetos</h2>
+              <h2 className="section-title">Nossos Projetos & Cases de Sucesso</h2>
               <p className="section-subtitle">
                 Desenvolvemos plataformas com design exclusivo, arquitetura limpa de software e alta taxa de conversão.
               </p>
             </div>
 
+            {/* Abas de Seleção de Projetos */}
+            <div className="project-tabs-container">
+              <button
+                onClick={() => setActiveProjectTab("mestre")}
+                className={`project-tab-btn ${activeProjectTab === "mestre" ? "active gold-tab" : ""}`}
+              >
+                <img src={mestreLogo} alt="Mestre das Alianças" className="w-5 h-5 rounded-full object-cover" />
+                <span>Mestre das Alianças (Joalheria Premium)</span>
+              </button>
+              <button
+                onClick={() => setActiveProjectTab("dott")}
+                className={`project-tab-btn ${activeProjectTab === "dott" ? "active" : ""}`}
+              >
+                <span>💻 Dott System Dashboard</span>
+              </button>
+            </div>
+
+            {/* Card Detalhes do Projeto Ativo */}
+            <div className="project-details-card">
+              {activeProjectTab === "mestre" ? (
+                <>
+                  <span className="project-details-tag">👑 Case em Destaque — Joalheria & E-commerce</span>
+                  <h3 className="project-details-title">Mestre das Alianças</h3>
+                  <p className="project-details-desc">
+                    Plataforma e-commerce e Landing Page desenvolvida com alta performance para exibição e venda de Alianças de Ouro 18k e Prata 950. Conta com gravação gratuita, garantia eterna e integração para atendimento nacional.
+                  </p>
+                  <div className="project-badges-list">
+                    <span className="project-badge-pill">✨ Ouro 18k & Prata 950</span>
+                    <span className="project-badge-pill">📱 Layout 100% Responsivo</span>
+                    <span className="project-badge-pill">🚀 Alta Velocidade & SEO</span>
+                    <span className="project-badge-pill">🛡️ Gravação & Garantia Eterna</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span className="project-details-tag" style={{ background: "rgba(79,70,229,0.12)", color: "#4f46e5" }}>💻 Sistema Corporativo — Gestão & Dashboard</span>
+                  <h3 className="project-details-title">Plataforma Dott System</h3>
+                  <p className="project-details-desc">
+                    Ecossistema interno de acompanhamento de etapas de desenvolvimento, gestão financeira de faturas via PIX/Boleto e painel interativo de clientes.
+                  </p>
+                  <div className="project-badges-list">
+                    <span className="project-badge-pill">⚡ React & TypeScript</span>
+                    <span className="project-badge-pill">🔒 Autenticação JWT</span>
+                    <span className="project-badge-pill">💳 Pagamentos PIX</span>
+                    <span className="project-badge-pill">📊 Painel em Tempo Real</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Mockups Visualizadores */}
             <div className="preview-devices">
               <motion.div
+                key={activeProjectTab + "-desktop"}
                 className="preview-desktop"
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
               >
-                <div className="preview-label">💻 Plataforma Desktop</div>
-                <img src={desktopMockup} alt="Mockup de Plataforma Desktop Dott" className="preview-img" />
+                <div className="preview-label">
+                  {activeProjectTab === "mestre" ? "💻 Site Mestre das Alianças — Desktop" : "💻 Dott System — Desktop"}
+                </div>
+                <img 
+                  src={activeProjectTab === "mestre" ? mestreDesktop : desktopMockup} 
+                  alt={activeProjectTab === "mestre" ? "Site Mestre das Alianças Desktop" : "Mockup de Plataforma Desktop Dott"} 
+                  className="preview-img" 
+                />
               </motion.div>
 
               <motion.div
+                key={activeProjectTab + "-mobile"}
                 className="preview-mobile"
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
               >
-                <div className="preview-label">📱 Layout Mobile</div>
-                <img src={mobileMockup} alt="Mockup de Aplicativo Mobile Dott" className="preview-img preview-img-mobile" />
+                <div className="preview-label">
+                  {activeProjectTab === "mestre" ? "📱 Site Mestre das Alianças — Mobile" : "📱 Dott System — Mobile"}
+                </div>
+                <img 
+                  src={activeProjectTab === "mestre" ? mestreMobile : mobileMockup} 
+                  alt={activeProjectTab === "mestre" ? "Site Mestre das Alianças Mobile" : "Mockup Mobile Dott"} 
+                  className="preview-img preview-img-mobile" 
+                />
               </motion.div>
             </div>
           </div>
@@ -428,8 +486,9 @@ function Home() {
 
       </main>
 
-      {/* Chatbot */}
+      {/* Chatbots (Direita: Dott System | Esquerda: Mestre das Alianças) */}
       <Chatbot />
+      <ChatbotMestre />
 
       <Footer />
     </>

@@ -746,37 +746,48 @@ app.put("/api/admin/projetos/:id", authMiddleware, adminMiddleware, async (req, 
     }
 });
 
-// CHAT Bot 
+// CHAT Bot com Assistente Proativo e Memória de Sessão
 
 app.post("/api/chat", async (req, res) => {
-    const { mensagemUsuario } = req.body;
+    const { mensagemUsuario, sessionId } = req.body;
 
     if (!mensagemUsuario) {
-        return res.status(400).json({message: "A mensagem não pode estar vazia."});
+        return res.status(400).json({ message: "A mensagem não pode estar vazia." });
     }
 
     try {
-        // A função isolada é chamada aqui!
-        const respostaDaIa = await enviarMensagemParaLangflow(mensagemUsuario);
-        
-        // Devolvemos o texto da IA para o React desenhar na tela
+        const idSessao = sessionId || "session_dott_default";
+        let respostaDaIa = "";
+
+        try {
+            respostaDaIa = await enviarMensagemParaLangflow(mensagemUsuario, idSessao);
+        } catch (errLangflow) {
+            console.log("Langflow indisponível, usando motor de IA local Dott:", errLangflow.message);
+        }
+
+        // Se Langflow for repetitivo (ex: só fala "prazer em ajudar" sem dar preço/opções), ou se estiver vazio:
+        const ehRepetitivoOuCurto = !respostaDaIa || respostaDaIa.length < 30 || (respostaDaIa.includes("prazer") && !respostaDaIa.includes("R$") && !respostaDaIa.includes("criar-projeto"));
+
+        if (ehRepetitivoOuCurto) {
+            respostaDaIa = processarRespostaInteligenteDott(mensagemUsuario, respostaDaIa);
+        }
+
         res.status(200).json({ resposta: respostaDaIa });
     } catch (error) {
         console.error("Erro no chat:", error);
-        res.status(500).json({ error: "Erro ao processar mensagem na IA." });
+        res.status(200).json({ resposta: processarRespostaInteligenteDott(mensagemUsuario, "") });
     }
 });
 
-// Função modular fica "solta" no arquivo, fora das rotas, para organizar
-async function enviarMensagemParaLangflow(mensagemUsuario) {
+async function enviarMensagemParaLangflow(mensagemUsuario, sessionId) {
     const url = "http://localhost:7860/api/v1/run/6e203c0f-fbd9-47a7-980f-0923c09c95ae";
-    const sessionId = crypto.randomUUID();
+    const idSessao = sessionId || crypto.randomUUID();
     
     const payload = {
         output_type: "chat",
         input_type: "chat",
         input_value: mensagemUsuario,
-        session_id: sessionId
+        session_id: idSessao
     };
 
     const headers = {
@@ -796,6 +807,212 @@ async function enviarMensagemParaLangflow(mensagemUsuario) {
     
     const data = await response.json();
     return data.outputs[0].outputs[0].results.message.text;
+}
+
+function processarRespostaInteligenteDott(mensagemUsuario, respostaBase) {
+    const msg = mensagemUsuario.toLowerCase();
+
+    // 1. Petshop ou negócios específicos
+    if (msg.includes("petshop") || msg.includes("pet shop") || msg.includes("pet")) {
+        return "Com certeza! Para o seu **Petshop**, desenvolvemos soluções completas focadas em captação de clientes e agendamentos:\n\n" +
+               "🐶 **Recursos ideais para Petshop:**\n" +
+               "• Catálogo de serviços (Banho, Tosa, Clínica Veterinária)\n" +
+               "• Botão de Agendamento direto no WhatsApp\n" +
+               "• Vitrine de rações e acessórios\n" +
+               "• Fotos, localização e depoimentos de clientes\n\n" +
+               "💰 **Opções de Investimento:**\n" +
+               "• **Landing Page Express:** R$ 890 (Entrega em 5-7 dias, foco em agendamentos no WhatsApp)\n" +
+               "• **Site Institucional:** R$ 2.490 (Entrega em 10-15 dias, até 6 páginas com serviços e fotos)\n" +
+               "• **Loja Virtual / E-commerce:** R$ 7.990 (Entrega em 30-40 dias, catálogo e vendas online)\n\n" +
+               "Quer iniciar a proposta para o seu Petshop agora mesmo? Clique em [Criar Proposta de Projeto](/criar-projeto)!";
+    }
+
+    // 2. Preço / Orçamento / Quanto custa
+    if (msg.includes("custa") || msg.includes("preço") || msg.includes("preco") || msg.includes("valor") || msg.includes("orçamento") || msg.includes("orcamento") || msg.includes("quanto")) {
+        return "Nossos valores na **Dott System** são transparentes e se adaptam ao tamanho do seu negócio:\n\n" +
+               "🚀 **Landing Page:** R$ 890 (Entrega em 5 a 7 dias)\n" +
+               "🌐 **Site Institucional:** R$ 2.490 (Entrega em 10 a 15 dias - até 6 páginas)\n" +
+               "⭐ **Site Institucional Premium:** R$ 4.990 (Entrega em 20 a 25 dias - até 12 páginas)\n" +
+               "🛒 **E-commerce Completo:** R$ 7.990 (Entrega em 30 a 40 dias)\n" +
+               "📱 **Aplicativo Mobile MVP:** R$ 6.990 (Entrega em 20 a 30 dias)\n\n" +
+               "💳 *Pagamento via Pix, Boleto ou Cartão em até 12x.*\n\n" +
+               "Você pode simular e montar os requisitos do seu projeto agora em [Criar Proposta](/criar-projeto)!";
+    }
+
+    // 3. Etapas / Prazos / Como funciona
+    if (msg.includes("funciona") || msg.includes("prazo") || msg.includes("etapa") || msg.includes("demora") || msg.includes("passo")) {
+        return "Nosso processo de desenvolvimento é 100% transparente e estruturado em 5 etapas principais:\n\n" +
+               "1️⃣ **Briefing:** Entendemos suas ideias e requisitos.\n" +
+               "2️⃣ **Design no Figma:** Criamos a prévia visual interativa do seu site.\n" +
+               "3️⃣ **Programação:** Desenvolvemos o sistema com tecnologia moderna e rápida.\n" +
+               "4️⃣ **Testes & Homologação:** Você aprova todas as telas e ajustes.\n" +
+               "5️⃣ **Lançamento:** Publicamos seu site na nuvem com suporte contínuo.\n\n" +
+               "Gostaria de dar o primeiro passo? Monte seu briefing em [Criar Proposta de Projeto](/criar-projeto)!";
+    }
+
+    // 4. Se a resposta da IA for aceitável mas sem CTA, adicionar o CTA
+    if (respostaBase && respostaBase.length > 20) {
+        return respostaBase + "\n\nSe quiser dar andamento, você pode criar uma proposta direto em [Criar Proposta de Projeto](/criar-projeto).";
+    }
+
+    // 5. Fallback padrão proativo
+    return "Olá! Sou o assistente virtual da **Dott System**. Desenvolvemos sites institucionais, landing pages, e-commerces e aplicativos sob medida para o seu negócio.\n\n" +
+           "Como posso ajudar você hoje? Você pode me perguntar sobre **preços**, **prazos** ou me contar qual é o seu ramo (ex: Petshop, Restaurante, Advocacia, Loja Virtual)!\n\n" +
+           "Se preferir, você também pode montar a proposta do seu projeto diretamente em [Criar Proposta](/criar-projeto).";
+}
+
+// ==========================================
+// CHAT BOT MESTRE DAS ALIANÇAS (Langflow Dedicado)
+// ==========================================
+
+app.post("/api/chat-mestre", async (req, res) => {
+    const { mensagemUsuario, sessionId } = req.body;
+
+    if (!mensagemUsuario) {
+        return res.status(400).json({ message: "A mensagem não pode estar vazia." });
+    }
+
+    try {
+        const idSessao = sessionId || "session_mestre_default";
+        let respostaDaIa = "";
+
+        try {
+            respostaDaIa = await enviarMensagemParaLangflowMestre(mensagemUsuario, idSessao);
+        } catch (errLangflow) {
+            console.log("Langflow Mestre das Alianças aguardando URL personalizada:", errLangflow.message);
+        }
+
+        // Filtro de Segurança Reforçado: Bloqueia vazamentos do Langflow (negócio, parceria, boné, matriz, tecido, almofada, etc.)
+        const respLower = (respostaDaIa || "").toLowerCase();
+        const termosProibidos = ["negócio", "negocio", "parceria", "boné", "bone", "peito", "costas", "dst", "pes", "tecido", "matriz", "bordad", "bastidor", "agulha", "encomenda", "encomendas", "almofada", "almofadas", "desenho", "aplicação pretendida", "[inserir localização]"];
+        const temInvasaoEstranha = termosProibidos.some(t => respLower.includes(t));
+
+        if (!respostaDaIa || respostaDaIa.length < 15 || temInvasaoEstranha) {
+            respostaDaIa = processarRespostaInteligenteMestre(mensagemUsuario);
+        }
+
+        res.status(200).json({ resposta: respostaDaIa });
+    } catch (error) {
+        console.error("Erro no chat Mestre das Alianças:", error);
+        res.status(200).json({ resposta: processarRespostaInteligenteMestre(mensagemUsuario) });
+    }
+});
+
+async function enviarMensagemParaLangflowMestre(mensagemUsuario, sessionId) {
+    // Endpoint fornecido pelo usuário no Langflow para a Mestre das Alianças
+    const url = process.env.LANGFLOW_MESTRE_URL || "http://localhost:7860/api/v1/run/89e42945-3b76-4636-a80d-604703a98be8";
+    
+    const payload = {
+        output_type: "chat",
+        input_type: "chat",
+        input_value: mensagemUsuario,
+        session_id: sessionId
+    };
+
+    const headers = { "Content-Type": "application/json" };
+    if (process.env.LANGFLOW_API_KEY) {
+        headers["x-api-key"] = process.env.LANGFLOW_API_KEY;
+    }
+
+    const response = await fetch(url, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) throw new Error(`Status ${response.status}`);
+    
+    const data = await response.json();
+    return data.outputs[0].outputs[0].results.message.text;
+}
+
+function processarRespostaInteligenteMestre(mensagemUsuario) {
+    const msg = mensagemUsuario.toLowerCase();
+
+    // Tratamento para "desisto"
+    if (msg.includes("desisto") || msg.includes("calma")) {
+        return "Não desista! Estou aqui 100% focado em ajudar você a escolher a aliança perfeita da **Mestre das Alianças**! 💍\n\nNossos principais modelos:\n• **Ouro 18k (750)** — Ouro Nobre com garantia eterna\n• **Ouro 10k (416)** — Ouro legítimo com excelente custo-benefício\n• **Prata 950** — Prata de lei de alto brilho\n\nTodas acompanham **gravação grátis** e **garantia eterna**!\n\nQual modelo ou ocasião você gostaria de ver agora?";
+    }
+
+    // 1. Erros de digitação (alinça, alinca), gírias/termos afetivos (veio, véio, veia, véia, nego, nega, amor, namorado) e compra
+    const temAlianca = msg.includes("aliança") || msg.includes("alianca") || msg.includes("alinça") || msg.includes("alinca") || msg.includes("anel") || msg.includes("joia");
+    const temIntencaoOuAfeto = msg.includes("quero") || msg.includes("gostaria") || msg.includes("preciso") || msg.includes("procur") || msg.includes("comprar") || msg.includes("ver") || msg.includes("tipo") || msg.includes("modelo") || msg.includes("categoria") || msg.includes("nego") || msg.includes("nega") || msg.includes("veio") || msg.includes("véio") || msg.includes("veia") || msg.includes("véia") || msg.includes("amor") || msg.includes("namorad") || msg.includes("noiv") || msg.includes("marido") || msg.includes("esposa") || msg.includes("mozão") || msg.includes("mozao");
+
+    if (temAlianca || temIntencaoOuAfeto) {
+        let saudacaoAfetiva = "✨ **Que escolha especial!** Temos as alianças perfeitas para eternizar esse momento com quem você ama:\n\n";
+        if (msg.includes("nego") || msg.includes("nega") || msg.includes("veio") || msg.includes("véio") || msg.includes("veia") || msg.includes("véia") || msg.includes("amor") || msg.includes("namorad") || msg.includes("noiv") || msg.includes("marido") || msg.includes("esposa") || msg.includes("mozão") || msg.includes("mozao")) {
+            saudacaoAfetiva = "❤️ **Que carinho especial!** Temos os modelos perfeitos para surpreender o seu amor:\n\n";
+        }
+
+        return saudacaoAfetiva +
+               "💍 **Modelos & Ocasiões:**\n" +
+               "• **Casamento & Noivado:** Alianças nobres em Ouro 18k (750) ou Ouro 10k (416).\n" +
+               "• **Compromisso & Namoro:** Alianças em Prata 950 legítima com brilho espelhado.\n" +
+               "• **Anéis Especiais:** Anéis Solitários, Noivado e Formatura.\n\n" +
+               "🎨 **Estilos:** Clássica (lisa), Trabalhada (frisos/chanfros), Simples ou Detalhada (com pedras/brilhantes).\n" +
+               "✨ **Cortesia Especial:** **Gravação dos nomes e data grátis** no interior de todas as peças e opção de **Acabamento Anatômico** (extremo conforto no dedo)!\n\n" +
+               "Qual material você tem em mente? (Prata 950, Ouro 10k ou Ouro 18k?)";
+    }
+
+    // 2. Endereços e Lojas Físicas
+    if (msg.includes("onde") || msg.includes("endereço") || msg.includes("endereco") || msg.includes("loja") || msg.includes("fica") || msg.includes("recife") || msg.includes("boa viagem") || msg.includes("santo antônio") || msg.includes("santo antonio")) {
+        return "📍 **Nossas Lojas Físicas em Recife - PE:**\n\n" +
+               "🏢 **Unidade 1 - Boa Viagem:**\n" +
+               "Av. Conselheiro Aguiar, 2333 - Boa Viagem (Empresarial João Roma, Loja 11 - Térreo)\n" +
+               "⏰ *Horários:* Seg a Sex: 09:00 às 17:00 | Sáb: 09:00 às 13:00\n\n" +
+               "🏢 **Unidade 2 - Santo Antônio:**\n" +
+               "Rua Camboa Do Carmo, 123 - Santo Antônio (Próx. à Igreja do Carmo, em frente à Beto Ótica)\n" +
+               "⏰ *Horários:* Seg a Sex: 09:00 às 17:00 | Sáb: 09:00 às 14:00\n\n" +
+               "🇧🇷 *Enviamos com frete seguro para todo o Brasil!* Ou acesse nosso catálogo em https://mestredasaliancas.com.br/index.html";
+    }
+
+    // 3. Horários de Funcionamento
+    if (msg.includes("horario") || msg.includes("horário") || msg.includes("abre") || msg.includes("fecha") || msg.includes("sábado") || msg.includes("sabado")) {
+        return "⏰ **Horários de Atendimento:**\n\n" +
+               "• **Boa Viagem:** Seg a Sex das 09:00 às 17:00 | Sábados das 09:00 às 13:00\n" +
+               "• **Santo Antônio:** Seg a Sex das 09:00 às 17:00 | Sábados das 09:00 às 14:00\n" +
+               "• *Domingos e Feriados:* Fechado (Atendimento online 24h pelo site https://mestredasaliancas.com.br/index.html)";
+    }
+
+    // 4. Ouro 18k / Ouro 10k
+    if (msg.includes("ouro") || msg.includes("18k") || msg.includes("10k")) {
+        return "✨ **Alianças em Ouro (18k e 10k):**\n\n" +
+               "• **Ouro 18k (750):** Ouro Nobre certificado com brilho impecável e garantia eterna do metal.\n" +
+               "• **Ouro 10k (416):** Ouro legítimo com excelente custo-benefício e altíssima durabilidade.\n\n" +
+               "Disponíveis nos estilos *Clássico*, *Trabalhado*, *Simples* ou *Detalhado*, com **Gravação Grátis** e **Acabamento Anatômico**!\n\n" +
+               "🔗 Veja nosso catálogo de Ouro em: https://mestredasaliancas.com.br/ouro.html";
+    }
+
+    // 5. Prata 950
+    if (msg.includes("prata") || msg.includes("950")) {
+        return "💎 **Alianças em Prata 950:**\n\n" +
+               "Nossas Alianças de Prata 950 são feitas na mais pura liga de prata de lei, com brilho espelhado, gravação interna grátis e certificado de garantia permanente!\n\n" +
+               "🔗 Veja os modelos de Prata em: https://mestredasaliancas.com.br/prata.html";
+    }
+
+    // 6. Gravação e Garantia
+    if (msg.includes("grava") || msg.includes("nome") || msg.includes("garantia") || msg.includes("anatômico") || msg.includes("anatomico")) {
+        return "✨ **Diferenciais Mestre das Alianças:**\n" +
+               "• ✏️ **Gravação Grátis:** Nomes e datas gravados gratuitamente no interior de todas as alianças.\n" +
+               "• 🛡️ **Garantia Eterna:** Certificado de garantia permanente sobre a autenticidade do metal (Ouro 18k, 10k e Prata 950).\n" +
+               "• ☁️ **Acabamento Anatômico:** Formato curvo interno para máximo conforto diário no dedo.\n" +
+               "• 🇧🇷 **Envio Seguro:** Entregas para todo o Brasil!\n\n" +
+               "Acesse: https://mestredasaliancas.com.br/index.html";
+    }
+
+    // 7. Valores
+    if (msg.includes("preço") || msg.includes("quanto") || msg.includes("valor")) {
+        return "✨ Na **Mestre das Alianças** temos par de alianças de Prata 950 a partir de **R$ 199** e par de Ouro a partir de **R$ 1.290** em até 12x sem juros no cartão ou com desconto no Pix!\n\n" +
+               "• Modelos de Prata: https://mestredasaliancas.com.br/prata.html\n" +
+               "• Modelos de Ouro: https://mestredasaliancas.com.br/ouro.html";
+    }
+
+    return "👑 **Mestre das Alianças - Atendimento ao Cliente**\n\n" +
+           "Estou aqui para tirar qualquer dúvida sobre nossas alianças de **Ouro 18k, 10k e Prata 950** (Compromisso, Noivado e Casamento)!\n\n" +
+           "• 💎 **Sessão Prata 950:** https://mestredasaliancas.com.br/prata.html\n" +
+           "• ✨ **Sessão Ouro 18k / 10k:** https://mestredasaliancas.com.br/ouro.html\n" +
+           "• 📍 **Lojas Físicas:** Boa Viagem e Santo Antônio (Recife - PE)\n\n" +
+           "Como posso ajudar a esclarecer sua dúvida agora?";
 }
 
 app.listen(3000, () => console.log("Servidor rodando na porta 3000"));

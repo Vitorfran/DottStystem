@@ -38,7 +38,19 @@ async function main() {
   });
   console.log("Cliente criado: cliente@dott.com / password: dott123");
 
-  // 3. Cria Projeto
+  // 2b. Cria usuário Cliente - Mestre das Alianças
+  const clienteMestre = await prisma.user.create({
+    data: {
+      nome: "Mestre das Alianças",
+      email: "contato@mestredasaliancas.com.br",
+      senha: hashSenha,
+      role: "cliente",
+      emailVerificado: true
+    }
+  });
+  console.log("Cliente Mestre das Alianças criado: contato@mestredasaliancas.com.br / password: dott123");
+
+  // 3. Cria Projeto Francisco
   const projeto = await prisma.project.create({
     data: {
       nome: "E-commerce Premium Francisco",
@@ -54,7 +66,24 @@ async function main() {
       responsavelId: admin.id
     }
   });
-  console.log("Projeto criado com sucesso!");
+
+  // 3b. Cria Projeto Mestre das Alianças
+  const projetoMestre = await prisma.project.create({
+    data: {
+      nome: "Mestre das Alianças - Portal E-commerce",
+      mensagem: "Plataforma e-commerce e Landing Page de alta conversão para Alianças de Ouro 18k e Prata 950 com gravação gratuita, garantia eterna e entrega nacional.",
+      etapa_atual: "ENTREGA",
+      figma_link: "https://figma.com/file/mestre-das-aliancas-figma",
+      trello_link: "https://trello.com/b/mestre-das-aliancas-trello",
+      contrato_link: "https://zapsign.com.br/sign/mestre-das-aliancas-contrato",
+      contrato_assinado: true,
+      designAprovado: true,
+      dataEntrega: new Date(),
+      clienteId: clienteMestre.id,
+      responsavelId: admin.id
+    }
+  });
+  console.log("Projetos criados com sucesso!");
 
   // 4. Cria Faturas
   // Fatura 1: Entrada (Paga)

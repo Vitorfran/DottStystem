@@ -2,12 +2,13 @@ import { useState, useRef, useEffect, type FormEvent } from 'react';
 
 export default function Chatbot() {
   const [aberto, setAberto] = useState(false);
+  const [sessionId] = useState(() => 'sess_' + Math.random().toString(36).substring(2, 11));
   const [mensagens, setMensagens] = useState([
     { autor: 'ia', texto: 'Olá! Sou o assistente da Dott System. Como posso ajudar com seu projeto web hoje?' }
   ]);
   const [input, setInput] = useState('');
   const [carregando, setCarregando] = useState(false);
-  
+
   // Referência para fazer o auto-scroll sempre que uma nova mensagem chegar
   const fimDoChatRef = useRef<HTMLDivElement>(null);
 
@@ -26,23 +27,23 @@ export default function Chatbot() {
     setCarregando(true);
 
     try {
-      // Bate na rota que você acabou de criar no seu back-end Express
+      // Bate na rota da API Express
       const response = await fetch('http://localhost:3000/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mensagemUsuario: textoUsuario }),
+        body: JSON.stringify({ mensagemUsuario: textoUsuario, sessionId }),
       });
 
       if (!response.ok) throw new Error('Falha no servidor');
 
       const data = await response.json();
-      
+
       // Adiciona a resposta da IA no histórico
       setMensagens((prev) => [...prev, { autor: 'ia', texto: data.resposta }]);
-      
+
     } catch (error) {
       console.error("Erro:", error);
-      setMensagens((prev) => [...prev, { autor: 'ia', texto: 'Ops! Parece que estou sem sinal. Tente novamente em instantes.' }]);
+      setMensagens((prev) => [...prev, { autor: 'ia', texto: 'Ops! Ocorreu uma instabilidade na conexão. Se precisar, acesse diretamente nossa página de [Criar Proposta](/criar-projeto).' }]);
     } finally {
       setCarregando(false);
     }
@@ -59,7 +60,7 @@ export default function Chatbot() {
               <h3 className="font-bold text-lg leading-none">Assistente Dott</h3>
               <span className="text-blue-200 text-xs">Online agora</span>
             </div>
-            <button 
+            <button
               onClick={() => setAberto(false)}
               className="text-white hover:text-gray-200 focus:outline-none"
             >
@@ -71,15 +72,15 @@ export default function Chatbot() {
           <div className="h-96 overflow-y-auto p-4 bg-gray-50 flex flex-col gap-3">
             {mensagens.map((msg, idx) => {
               const renderizarTexto = (texto: string) => {
-                // Substitui [Texto](URL) por link HTML
-                let html = texto.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, 
-                  '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline font-semibold hover:text-blue-800">$1</a>'
+                // Substitui **texto** por negrito <strong>
+                let html = texto.replace(/\*\*([^*]+)\*\*/g, 
+                  '<strong class="font-bold text-gray-900">$1</strong>'
                 );
-                // Substitui (URL) por (Link HTML)
-                html = html.replace(/\((https?:\/\/[^\s)]+)\)/g, 
-                  '(<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline font-semibold hover:text-blue-800">$1</a>)'
+                // Substitui [Texto](URL ou rota) por link HTML clicável
+                html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, 
+                  '<a href="$2" class="text-blue-600 underline font-semibold hover:text-blue-800">$1</a>'
                 );
-                // Substitui URLs livres que não estão dentro de tags HTML por links
+                // Substitui URLs avulsas por links
                 html = html.replace(/(?<!href=")(?<!">)(https?:\/\/[^\s()<]+)/g, 
                   '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline font-semibold hover:text-blue-800">$1</a>'
                 );
@@ -87,19 +88,18 @@ export default function Chatbot() {
               };
 
               return (
-                <div 
-                  key={idx} 
-                  className={`max-w-[80%] p-3 rounded-xl text-sm whitespace-pre-wrap ${
-                    msg.autor === 'ia' 
-                      ? 'bg-white border border-gray-200 text-gray-800 self-start rounded-tl-none' 
+                <div
+                  key={idx}
+                  className={`max-w-[80%] p-3 rounded-xl text-sm whitespace-pre-wrap ${msg.autor === 'ia'
+                      ? 'bg-white border border-gray-200 text-gray-800 self-start rounded-tl-none'
                       : 'bg-blue-600 text-white self-end rounded-tr-none shadow-sm'
-                  }`}
+                    }`}
                 >
                   {msg.autor === 'ia' ? renderizarTexto(msg.texto) : msg.texto}
                 </div>
               );
             })}
-            
+
             {carregando && (
               <div className="bg-white border border-gray-200 text-gray-500 self-start rounded-xl rounded-tl-none p-3 text-sm flex gap-1 items-center">
                 <span className="animate-bounce">●</span>
@@ -120,8 +120,8 @@ export default function Chatbot() {
               className="flex-1 bg-gray-100 text-sm rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               disabled={carregando}
             />
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={carregando || !input.trim()}
               className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 disabled:bg-gray-400 transition-colors flex items-center justify-center"
             >
