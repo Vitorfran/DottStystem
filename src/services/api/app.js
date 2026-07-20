@@ -1253,4 +1253,8 @@ function processarRespostaInteligenteMestre(mensagemUsuario) {
         "• 💬 **WhatsApp de Vendas:** [Falar com Consultor](https://api.whatsapp.com/send?phone=5581999999999&text=Ol%C3%A1!%20Gostaria%20de%20atendimento)";
 }
 
-app.listen(3000, () => console.log("Servidor rodando na porta 3000"));
+if (!process.env.VERCEL) {
+    app.listen(3000, () => console.log("Servidor rodando na porta 3000"));
+}
+
+export default app;
