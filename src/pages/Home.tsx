@@ -103,23 +103,9 @@ function Home() {
             {/* Lado Esquerdo: Textos & CTAs */}
             <div className="hero-text-content">
 
-              {/* Atalho Interativo para Criar Projeto */}
-              <motion.button
-                onClick={() => navigate("/criar-projeto")}
-                className="hero-badge-shortcut"
-                custom={0}
-                variants={fadeUp}
-                initial="hidden"
-                animate="visible"
-              >
-                <span className="badge-sparkle">✨</span>
-                <span>Assistente de Briefing Inteligente Dott IA</span>
-                <span className="badge-arrow">➔</span>
-              </motion.button>
-
               <motion.h1
                 className="hero-title"
-                custom={1}
+                custom={0}
                 variants={fadeUp}
                 initial="hidden"
                 animate="visible"
@@ -130,7 +116,7 @@ function Home() {
 
               <motion.p
                 className="hero-description"
-                custom={2}
+                custom={1}
                 variants={fadeUp}
                 initial="hidden"
                 animate="visible"
@@ -140,7 +126,7 @@ function Home() {
 
               <motion.div
                 className="hero-cta-group"
-                custom={3}
+                custom={2}
                 variants={fadeUp}
                 initial="hidden"
                 animate="visible"
@@ -157,25 +143,6 @@ function Home() {
                 >
                   🔍 Ver Cases de Sucesso
                 </a>
-              </motion.div>
-
-              {/* Card Banner de Atalho Rápido */}
-              <motion.div
-                onClick={() => navigate("/criar-projeto")}
-                className="hero-quick-banner-shortcut"
-                custom={4}
-                variants={fadeUp}
-                initial="hidden"
-                animate="visible"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="shortcut-icon-circle">💡</div>
-                  <div className="text-left">
-                    <h4 className="font-extrabold text-slate-900 text-sm">Tem uma ideia para o seu projeto?</h4>
-                    <p className="text-xs text-slate-500 font-medium">Clique aqui, monte seu briefing por voz ou texto e receba o escopo gerado por IA.</p>
-                  </div>
-                </div>
-                <div className="shortcut-arrow-badge">Começar Agora ➔</div>
               </motion.div>
             </div>
 

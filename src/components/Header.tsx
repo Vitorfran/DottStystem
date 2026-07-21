@@ -3,6 +3,7 @@ import "../styles/header.css";
 
 function Header() {
   const [usuario, setUsuario] = useState<{ nome: string; role: string } | null>(null);
+  const [menuAberto, setMenuAberto] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -20,7 +21,6 @@ function Header() {
     } catch {
       return;
     }
-
 
     // Busca o nome do usuário logado na API
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -42,9 +42,7 @@ function Header() {
     window.location.href = "/";
   };
 
-
-
-  // Destino do painel conforme o papel do usuário ( role ) 
+  // Destino do painel conforme o papel do usuário (role)
   const painelLink = usuario?.role === "admin" || usuario?.role === "funcionario" ? "/admin" : "/dashboard";
   const nomePrimeiro = usuario?.nome?.split(" ")[0] || "";
 
@@ -55,68 +53,81 @@ function Header() {
           Dott<span className="dot">.</span>System
         </a>
 
-        <nav className="nav-menu">
-          <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/about">Sobre</a></li>
-            <li><a href="/criar-projeto">Criar Projeto</a></li>
+        {/* Botão Hamburger (visível no mobile) */}
+        <button
+          className={`mobile-menu-btn ${menuAberto ? "open" : ""}`}
+          onClick={() => setMenuAberto(!menuAberto)}
+          aria-label="Alternar Menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
 
-            {/* Mostra Login apenas se NÃO estiver logado */}
+        {/* Menu de Navegação (Desktop e Drawer no Mobile) */}
+        <nav className={`nav-menu ${menuAberto ? "mobile-open" : ""}`}>
+          <ul>
+            <li>
+              <a href="/" onClick={() => setMenuAberto(false)}>Home</a>
+            </li>
+            <li>
+              <a href="/about" onClick={() => setMenuAberto(false)}>Sobre</a>
+            </li>
+            <li>
+              <a href="/criar-projeto" onClick={() => setMenuAberto(false)}>Criar Projeto</a>
+            </li>
+
             {!usuario && (
-              <li><a href="/login">Login</a></li>
+              <li>
+                <a href="/login" onClick={() => setMenuAberto(false)}>Login</a>
+              </li>
             )}
 
-            {/* Mostra o link do painel se estiver logado */}
             {usuario && (
-              <li><a href={painelLink}>Meu Painel</a></li>
+              <li>
+                <a href={painelLink} onClick={() => setMenuAberto(false)}>Meu Painel</a>
+              </li>
             )}
           </ul>
+
+          {/* Ações no menu mobile */}
+          <div className="mobile-actions">
+            {usuario ? (
+              <div className="mobile-user-box">
+                <a href={painelLink} className="mobile-user-name">
+                  👋 Olá, {nomePrimeiro}
+                </a>
+                <button onClick={handleSair} className="mobile-btn-sair">
+                  Sair
+                </button>
+              </div>
+            ) : (
+              <a
+                href="/criar-projeto"
+                className="btn-header-cta mobile-cta-btn"
+                onClick={() => setMenuAberto(false)}
+              >
+                🚀 Criar Projeto
+              </a>
+            )}
+          </div>
         </nav>
 
-        <div className="header-actions" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        {/* Ações Desktop */}
+        <div className="header-actions">
           {usuario ? (
-            /* Usuário logado: mostra saudação + botão sair */
             <>
-              <a
-                href={painelLink}
-                style={{
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  color: "#4f46e5",
-                  textDecoration: "none",
-                  whiteSpace: "nowrap"
-                }}
-              >
+              <a href={painelLink} className="header-user-link">
                 👋 {nomePrimeiro}
               </a>
-              <button
-                onClick={handleSair}
-                style={{
-                  background: "transparent",
-                  border: "1.5px solid #e2e8f0",
-                  borderRadius: "10px",
-                  padding: "8px 16px",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  color: "#64748b",
-                  cursor: "pointer",
-                  transition: "all 0.2s"
-                }}
-                onMouseEnter={e => {
-                  (e.target as HTMLButtonElement).style.borderColor = "#cbd5e1";
-                  (e.target as HTMLButtonElement).style.color = "#334155";
-                }}
-                onMouseLeave={e => {
-                  (e.target as HTMLButtonElement).style.borderColor = "#e2e8f0";
-                  (e.target as HTMLButtonElement).style.color = "#64748b";
-                }}
-              >
+              <button onClick={handleSair} className="header-btn-sair">
                 Sair
               </button>
             </>
           ) : (
-            /* Não logado: botão de CTA */
-            <a href="/criar-projeto" className="btn-header-cta">🚀 Criar Projeto</a>
+            <a href="/criar-projeto" className="btn-header-cta">
+              🚀 Criar Projeto
+            </a>
           )}
         </div>
       </div>
