@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_URL } from "../config/api";
 
 // Declaração de tipos para estender a interface global de Window para Web Speech API
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -26,7 +27,7 @@ function CriarProjeto() {
     const token = localStorage.getItem("token");
     if (!token) return;
 
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    const apiUrl = API_URL;
     fetch(`${apiUrl}/api/auth/me`, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -103,7 +104,7 @@ function CriarProjeto() {
     setEscopoRefinado(null);
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const apiUrl = API_URL;
       const response = await fetch(`${apiUrl}/api/contato/refinar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -155,7 +156,7 @@ function CriarProjeto() {
       : `PROJETO: ${nomeProjeto}\n\nIDEIA DO CLIENTE:\n${ideiaBruta}`;
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const apiUrl = API_URL;
       const response = await fetch(`${apiUrl}/api/contato`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

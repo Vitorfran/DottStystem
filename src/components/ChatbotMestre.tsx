@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, type FormEvent } from 'react';
 import mestreLogo from '../assets/imagens/mestre_das_aliancas_logo.jpg';
+import { API_URL } from '../config/api';
 
 export default function ChatbotMestre() {
   const [aberto, setAberto] = useState(false);
@@ -29,7 +30,7 @@ export default function ChatbotMestre() {
     setCarregando(true);
 
     try {
-      const response = await fetch('http://localhost:3000/api/chat-mestre', {
+      const response = await fetch(`${API_URL}/api/chat-mestre`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mensagemUsuario: textoUsuario, sessionId }),

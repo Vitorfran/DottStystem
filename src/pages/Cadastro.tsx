@@ -2,6 +2,7 @@ import { useState, useRef, type FormEvent, type KeyboardEvent, type ClipboardEve
 import { useNavigate, Link } from "react-router-dom";
 import Header from "../components/Header";
 import logoImg from "../assets/imagens/logo.png";
+import { API_URL } from "../config/api";
 
 type Passo = "formulario" | "verificacao" | "sucesso";
 
@@ -32,7 +33,7 @@ function Cadastro() {
     useRef<HTMLInputElement>(null),
   ];
 
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  const apiUrl = API_URL;
 
   // ────────────────────────────────────────────────────────────────────────────
   // PASSO 1 — Submeter o formulário de cadastro

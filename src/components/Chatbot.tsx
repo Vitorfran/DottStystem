@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, type FormEvent } from 'react';
+import { API_URL } from '../config/api';
 
 export default function Chatbot() {
   const [aberto, setAberto] = useState(false);
@@ -28,7 +29,7 @@ export default function Chatbot() {
 
     try {
       // Bate na rota da API Express
-      const response = await fetch('http://localhost:3000/api/chat', {
+      const response = await fetch(`${API_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mensagemUsuario: textoUsuario, sessionId }),

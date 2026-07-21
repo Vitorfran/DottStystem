@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "../styles/home.css";
+import { API_URL } from "../config/api";
 import desktopMockup from "../assets/imagens/desktop_mockup.png";
 import mobileMockup from "../assets/imagens/mobile_mockup.png";
 import mestreDesktop from "../assets/imagens/mestre_das_aliancas_desktop.png";
@@ -47,7 +48,7 @@ function Home() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const apiUrl = API_URL;
       const resposta = await fetch(`${apiUrl}/api/contato`, {
         method: "POST",
         headers: {

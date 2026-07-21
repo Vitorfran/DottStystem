@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { API_URL } from "../config/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -62,7 +63,7 @@ function Dashboard() {
   const [copiado, setCopiado] = useState(false);
   const [carregandoAcao, setCarregandoAcao] = useState(false);
 
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  const apiUrl = API_URL;
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {

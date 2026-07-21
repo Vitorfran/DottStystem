@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "../styles/header.css";
+import { API_URL } from "../config/api";
 
 function Header() {
   const [usuario, setUsuario] = useState<{ nome: string; role: string } | null>(null);
@@ -23,7 +24,7 @@ function Header() {
     }
 
     // Busca o nome do usuário logado na API
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    const apiUrl = API_URL;
     fetch(`${apiUrl}/api/auth/me`, {
       headers: { Authorization: `Bearer ${token}` }
     })

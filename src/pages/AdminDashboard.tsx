@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_URL } from "../config/api";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -93,7 +94,7 @@ export default function AdminDashboard() {
   const [formTrelloLink, setFormTrelloLink] = useState("");
 
   const token = localStorage.getItem("token");
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  const apiUrl = API_URL;
 
   const mostrarSucesso = (msg: string) => {
     setMsgSucesso(msg);
