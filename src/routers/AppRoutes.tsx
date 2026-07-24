@@ -6,6 +6,7 @@ import Dashboard from "../pages/Dashboard_cliente.tsx";
 import CriarProjeto from "../pages/CriarProjeto.tsx";
 import AdminDashboard from "../pages/AdminDashboard.tsx";
 import Cadastro from "../pages/Cadastro.tsx";
+import { VitorDigitizing } from "../pages/VitorDigitizing.tsx";
 
 export function AppRoutes(){
     return(
@@ -17,6 +18,7 @@ export function AppRoutes(){
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/criar-projeto" element={<CriarProjeto />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/vitor-digitizing" element={<VitorDigitizing />} />
         </Routes>
     )
 }

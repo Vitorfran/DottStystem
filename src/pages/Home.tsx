@@ -136,13 +136,13 @@ function Home() {
                   onClick={() => navigate("/criar-projeto")}
                   className="btn-hero btn-hero-primary"
                 >
-                  🚀 Iniciar Proposta de Projeto
+                  Iniciar Proposta de Projeto
                 </button>
                 <a
                   href="#preview"
                   className="btn-hero btn-hero-secondary"
                 >
-                  🔍 Ver Cases de Sucesso
+                  Ver Cases de Sucesso
                 </a>
               </motion.div>
             </div>
@@ -409,6 +409,152 @@ function Home() {
                     className="preview-img preview-img-mobile" 
                   />
                 </motion.div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ==========================================
+            DIFERENCIAL DOTT: PAINEL DO CLIENTE
+            ========================================== */}
+        <section className="diferencial-section" id="diferencial">
+          <div className="diferencial-container">
+            <div className="diferencial-card-banner">
+              <div className="diferencial-header">
+                <span className="diferencial-badge">
+                  DIFERENCIAL EXCLUSIVO DOTT SYSTEM
+                </span>
+                <h2 className="diferencial-title">
+                  Seu projeto 100% transparente. <br />
+                  <span className="text-gradient">Painel Exclusivo de Acompanhamento.</span>
+                </h2>
+                <p className="diferencial-subtitle">
+                  Chega de ficar no escuro! Ao contratar a Dott System, você ganha acesso a um portal do cliente exclusivo para acompanhar cada etapa do desenvolvimento sem surpresas e em tempo real.
+                </p>
+              </div>
+
+              {/* Grid de Recursos do Painel */}
+              <div className="diferencial-features-grid">
+                <div className="diferencial-item-card">
+                  <div className="diferencial-item-header">
+                    <svg className="w-8 h-8 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span className="diferencial-pill green">Status em Tempo Real</span>
+                  </div>
+                  <h3>Acompanhamento de Etapas</h3>
+                  <p>
+                    Veja exatamente em qual fase seu projeto está: Briefing, Design UI/UX no Figma, Código, Testes ou Publicação.
+                  </p>
+                  <div className="diferencial-mini-progress">
+                    <div className="mini-step done"><span>✓</span> Briefing</div>
+                    <div className="mini-step active">Design</div>
+                    <div className="mini-step">Código</div>
+                    <div className="mini-step">Entrega</div>
+                  </div>
+                </div>
+
+                <div className="diferencial-item-card">
+                  <div className="diferencial-item-header">
+                    <svg className="w-8 h-8 text-violet-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span className="diferencial-pill purple">1-Clique</span>
+                  </div>
+                  <h3>Contratos & Aprovação de Design</h3>
+                  <p>
+                    Assine contratos digitais pelo próprio painel e aprove os layouts do Figma com transparência total antes do código.
+                  </p>
+                  <div className="diferencial-mini-badge-box">
+                    <span className="badge-check">✓ Contrato Assinado</span>
+                    <span className="badge-check">✓ Protótipo Aprovado</span>
+                  </div>
+                </div>
+
+                <div className="diferencial-item-card">
+                  <div className="diferencial-item-header">
+                    <svg className="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                    <span className="diferencial-pill blue">Segurança</span>
+                  </div>
+                  <h3>Gestão Financeira & Pix Ágil</h3>
+                  <p>
+                    Visualize parcelas organizadas, copie códigos Pix instantaneamente e baixe comprovantes em um só lugar.
+                  </p>
+                  <div className="diferencial-mini-pix">
+                    <span>Pix Copia e Cola</span>
+                    <span className="pix-status">Quitado</span>
+                  </div>
+                </div>
+
+                <div className="diferencial-item-card">
+                  <div className="diferencial-item-header">
+                    <svg className="w-8 h-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span className="diferencial-pill amber">IA 24/7</span>
+                  </div>
+                  <h3>Suporte & Assistente Inteligente</h3>
+                  <p>
+                    Tire dúvidas em tempo real com a Dott IA, solicite alterações de briefing por voz ou texto e receba suporte contínuo.
+                  </p>
+                  <div className="diferencial-mini-chat">
+                    <span>Assistente Dott IA Online</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Banner Comercial Convincete: Garantia & Liberdade */}
+              <div className="diferencial-guarantee-banner">
+                <div className="guarantee-header">
+                  <svg className="w-8 h-8 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                  <h4 className="guarantee-title">Garantia & Liberdade Dott System: Sem Pegadinhas ou Amarras</h4>
+                </div>
+
+                <div className="guarantee-points-grid">
+                  <div className="guarantee-point-item">
+                    <span className="point-check-icon">✓</span>
+                    <div className="point-text">
+                      <strong>Código e Domínio 100% Seus</strong>
+                      <p>Entregamos seu sistema pronto. A titularidade do domínio é sua e o código-fonte pertence a você.</p>
+                    </div>
+                  </div>
+
+                  <div className="guarantee-point-item">
+                    <span className="point-check-icon">✓</span>
+                    <div className="point-text">
+                      <strong>Servidor de Alta Performance Incluso</strong>
+                      <p>Hospedamos seu site em nuvem rápida com SSL e backups por uma mensalidade acessível e opcional.</p>
+                    </div>
+                  </div>
+
+                  <div className="guarantee-point-item">
+                    <span className="point-check-icon">✓</span>
+                    <div className="point-text">
+                      <strong>Zero Fidelidade Forçada</strong>
+                      <p>Você continua conosco pela qualidade e comodidade do nosso suporte. Se quiser migrar no futuro, seu código vai com você.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Botões de Ação do Painel */}
+              <div className="diferencial-actions" style={{ marginTop: "35px" }}>
+                <button
+                  onClick={() => navigate("/login")}
+                  className="btn-diferencial btn-diferencial-primary"
+                >
+                  Acessar Área do Cliente
+                </button>
+                <button
+                  onClick={() => navigate("/criar-projeto")}
+                  className="btn-diferencial btn-diferencial-secondary"
+                >
+                  Iniciar Novo Projeto
+                </button>
               </div>
             </div>
           </div>

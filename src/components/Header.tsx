@@ -23,6 +23,7 @@ function Header() {
       return;
     }
 
+
     // Busca o nome do usuário logado na API
     const apiUrl = API_URL;
     fetch(`${apiUrl}/api/auth/me`, {
@@ -108,7 +109,7 @@ function Header() {
                 className="btn-header-cta mobile-cta-btn"
                 onClick={() => setMenuAberto(false)}
               >
-                🚀 Criar Projeto
+                 Criar Projeto
               </a>
             )}
           </div>
@@ -127,9 +128,10 @@ function Header() {
             </>
           ) : (
             <a href="/criar-projeto" className="btn-header-cta">
-              🚀 Criar Projeto
+               Criar Projeto
             </a>
           )}
+
         </div>
       </div>
     </header>

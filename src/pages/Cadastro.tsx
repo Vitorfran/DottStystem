@@ -266,6 +266,7 @@ function Cadastro() {
                 ))}
               </div>
 
+
               {/* Botão de confirmar */}
               <button
                 onClick={handleVerificar}
@@ -304,7 +305,7 @@ function Cadastro() {
             </div>
           )}
 
-          {/* ─── PASSO FORMULÁRIO ──────────────────────────────────────────── */}
+          {/* ─── PASSO FORMULÁRIO ────────────────── */}
           {passo === "formulario" && (
             <>
               <h2 className="text-2xl font-extrabold text-gray-800 mb-1 text-center">

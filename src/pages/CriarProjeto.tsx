@@ -322,7 +322,7 @@ function CriarProjeto() {
 
                 {/* Upload e Referências */}
                 <div className="space-y-5">
-                  <label className="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">Referências Visuais (Opcional)</label>
+                  <label className="text-[11px] font-black uppercase text-slate-400 tracking-widest ml-1">Referências Visuais, Logos e Arquivos (Opcional)</label>
                   <div className="flex gap-6 flex-wrap">
                     <label className="flex flex-col items-center justify-center w-36 h-36 border-2 border-dashed border-slate-200 rounded-[2rem] cursor-pointer hover:bg-slate-50 hover:border-indigo-300 transition group bg-white/40 shadow-sm">
                       <svg className="w-9 h-9 text-slate-300 group-hover:text-indigo-400 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">

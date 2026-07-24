@@ -8,6 +8,8 @@ import sys
 # Garantir que o script encontre as dependências instaladas no venv
 sys.path.append(os.path.join(os.path.dirname(__file__), "venv", "Lib", "site-packages"))
 
+
+
 try:
     import chromadb
     from langflow.services.settings.factory import SettingsServiceFactory
